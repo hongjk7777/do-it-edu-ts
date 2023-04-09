@@ -9,6 +9,8 @@ import config from './common/config/config';
 import { GqlConfigService } from './gql-config.service';
 import { StudentModule } from './student/student.module';
 import { CourseModule } from './course/course.module';
+import { ExamModule } from './exam/exam.module';
+import { ExamStudentModule } from './exam-student/exam-student.module';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { CourseModule } from './course/course.module';
     StudentModule,
     CourseModule,
     ExamModule,
+    ExamStudentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

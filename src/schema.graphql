@@ -24,6 +24,14 @@ input CreateExamInput {
   scoreRule: String!
 }
 
+input CreateExamStudentInput {
+  examId: Int!
+  scores: [Float!]!
+  seoulDept: String!
+  studnetId: Int!
+  yonseiDept: String!
+}
+
 input CreateStudentInput {
   courseId: Int!
   name: String!
@@ -66,12 +74,40 @@ type ExamScore {
   updatedAt: DateTime!
 }
 
+type ExamStudent {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  examId: ID!
+  examStudentScore: [ExamStudentScore!]!
+  id: ID!
+  seoulDept: String!
+  studentId: ID!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+  yonseiDept: String!
+}
+
+type ExamStudentScore {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: ID!
+  problemNumber: Float!
+  problemScore: Float!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
 type Mutation {
   createCourse(data: CreateCourseInput!): Course!
   createExam(data: CreateExamInput!): Exam!
+  createExamStudent(data: CreateExamStudentInput!): ExamStudent!
   createStudent(data: CreateStudentInput!): Student!
   deleteCourse(id: Int!): Boolean!
+  deleteExamStudent(id: Int!): Boolean!
   deleteExams(courseId: Int!): Boolean!
+  deleteExamsStudentByExamId(examId: Int!): Boolean!
   deleteStudent(id: Int!): Boolean!
   deleteStudentsByCourseId(id: Int!): Boolean!
 }
@@ -81,8 +117,13 @@ type Query {
   course(id: Int!): Course!
   courses: [Course!]!
   exam(courseId: Int!, round: Int!): Exam!
+  examStudent(examId: Int!, studentId: Int!): ExamStudent!
   exams(courseId: Int!): [Exam!]!
   getStudentByPhoneNum(phoneNum: String!): Student!
+  getStudentExamsByExamId(examId: Int!): [ExamStudent!]!
+  getStudentExamsBySeoulDept(seoulDept: String!): [ExamStudent!]!
+  getStudentExamsByStudentId(studentId: Int!): [ExamStudent!]!
+  getStudentExamsByYonseiDept(yonseiDept: String!): [ExamStudent!]!
   getStudentsByCourseId(courseId: Int!): [Student!]!
   student(id: Int!): Student!
 }

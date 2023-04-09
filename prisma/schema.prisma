@@ -48,7 +48,6 @@ model Exam {
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
   course     Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "exam_ibfk_1")
   examScore ExamScore[]
-  examStudentScore ExamStudentScore[]
   examStduent ExamStudent[]
 
   @@unique([round, courseId])
@@ -70,22 +69,26 @@ model ExamStudent {
   id        Int       @id @default(autoincrement()) @db.UnsignedInt
   examId    Int       @db.UnsignedInt
   studentId Int       @db.UnsignedInt
-  ranking   Int       @db.UnsignedInt
+  ranking   Int?      @db.UnsignedInt
   seoulDept String?   @db.VarChar(50)
   yonseiDept String?  @db.VarChar(50)
   createdAt DateTime  @default(now()) @db.Timestamp(0)
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
   student   Student   @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "exam_student_ibfk_1")
   exam      Exam      @relation(fields: [examId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "exam_student_ibfk_2")
+  examStudentScore ExamStudentScore[]
+
+  @@unique([examId, studentId])
 }
 
 model ExamStudentScore {
   id        Int       @id @default(autoincrement()) @db.UnsignedInt
-  examId    Int       @db.UnsignedInt
-  studentId Int       @db.UnsignedInt
+  examStudentId Int   @db.UnsignedInt
   problemNumber Int   @db.UnsignedInt
   problemScore  Float @db.Float
   createdAt DateTime  @default(now()) @db.Timestamp(0)
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
-  exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_student_score_ibfk_1")
+  examStudent  ExamStudent  @relation(fields: [examStudentId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_student_score_ibfk_1")
+
+  @@unique([examStudentId, problemNumber])
 }
