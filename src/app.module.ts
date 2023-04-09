@@ -25,6 +25,7 @@ import { CourseModule } from './course/course.module';
     }),
     StudentModule,
     CourseModule,
+    ExamModule,
   ],
   controllers: [AppController],
   providers: [AppService],

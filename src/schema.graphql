@@ -24,19 +24,79 @@ input CreateExamInput {
   scoreRule: String!
 }
 
+input CreateStudentInput {
+  courseId: Int!
+  name: String!
+  phoneNum: String!
+  school: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
+type Exam {
+  average: Float!
+  commonRound: Int
+  courseId: Int!
 
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  examScore: [ExamScore!]!
+  id: ID!
+  round: Int!
+  scoreRule: String!
+  standardDeviation: Float!
+  topScore: Float!
+  totalTester: Int!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type ExamScore {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: ID!
+  maxScore: Int!
+  problemNumber: Int!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
 
 type Mutation {
   createCourse(data: CreateCourseInput!): Course!
+  createExam(data: CreateExamInput!): Exam!
+  createStudent(data: CreateStudentInput!): Student!
   deleteCourse(id: Int!): Boolean!
+  deleteExams(courseId: Int!): Boolean!
+  deleteStudent(id: Int!): Boolean!
+  deleteStudentsByCourseId(id: Int!): Boolean!
 }
 
 type Query {
+  commonExams(commonRound: Int!): [Exam!]!
   course(id: Int!): Course!
   courses: [Course!]!
+  exam(courseId: Int!, round: Int!): Exam!
+  exams(courseId: Int!): [Exam!]!
+  getStudentByPhoneNum(phoneNum: String!): Student!
+  getStudentsByCourseId(courseId: Int!): [Student!]!
+  student(id: Int!): Student!
+}
+
+type Student {
+  courseId: Int!
+
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: ID!
+  name: String!
+  phoneNum: String!
+  school: String
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
 }

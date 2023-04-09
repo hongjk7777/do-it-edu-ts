@@ -14,12 +14,13 @@ model test {
 model Student {
   id         Int      @id @default(autoincrement()) @db.UnsignedInt
   name       String   @db.VarChar(40)
-  phoneNum  String   @db.VarChar(40)
+  phoneNum  String   @unique @db.VarChar(40)
   courseId  Int      @db.UnsignedInt
   school     String?  @db.VarChar(40)
   createdAt DateTime @default(now()) @db.Timestamp(0)
   updatedAt DateTime @default(now()) @db.Timestamp(0)
   course     Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "student_ibfk_1")
+  examStudent   ExamStudent[]
 
   @@index([courseId], map: "courseId")
 }
@@ -30,4 +31,61 @@ model Course {
   createdAt DateTime  @default(now()) @db.Timestamp(0)
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
   student    Student[]
+  exam      Exam[]
+}
+
+model Exam {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  round     Int       @db.UnsignedInt
+  commonRound Int?    @db.UnsignedInt @default(0)
+  courseId  Int       @db.UnsignedInt 
+  average   Float     @db.Float @default(0)
+  standardDeviation Float @db.Float @default(0)
+  scoreRule String?   @db.VarChar(4000)
+  topScore  Float     @db.Float @default(0)
+  totalTester Int     @db.UnsignedInt @default(0)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "exam_ibfk_1")
+  examScore ExamScore[]
+  examStudentScore ExamStudentScore[]
+  examStduent ExamStudent[]
+
+  @@unique([round, courseId])
+}
+
+model ExamScore {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  examId    Int       @db.UnsignedInt 
+  problemNumber Int   @db.UnsignedInt
+  maxScore  Float     @db.Float
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_score_ibfk_1")
+
+  @@unique([examId, problemNumber])
+}
+
+model ExamStudent {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  examId    Int       @db.UnsignedInt
+  studentId Int       @db.UnsignedInt
+  ranking   Int       @db.UnsignedInt
+  seoulDept String?   @db.VarChar(50)
+  yonseiDept String?  @db.VarChar(50)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  student   Student   @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "exam_student_ibfk_1")
+  exam      Exam      @relation(fields: [examId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "exam_student_ibfk_2")
+}
+
+model ExamStudentScore {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  examId    Int       @db.UnsignedInt
+  studentId Int       @db.UnsignedInt
+  problemNumber Int   @db.UnsignedInt
+  problemScore  Float @db.Float
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_student_score_ibfk_1")
 }
