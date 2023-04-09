@@ -10,3 +10,24 @@ datasource db {
 model test {
   id Int @id @default(autoincrement())
 }
+
+model Student {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  name       String   @db.VarChar(40)
+  phoneNum  String   @db.VarChar(40)
+  courseId  Int      @db.UnsignedInt
+  school     String?  @db.VarChar(40)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @db.Timestamp(0)
+  course     Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "student_ibfk_1")
+
+  @@index([courseId], map: "courseId")
+}
+
+model Course {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  name       String    @db.VarChar(40)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  student    Student[]
+}

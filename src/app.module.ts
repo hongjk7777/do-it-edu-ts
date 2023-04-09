@@ -7,7 +7,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import config from './common/config/config';
 import { GqlConfigService } from './gql-config.service';
-import { TestResolver } from './resolvers/test.resolver';
+import { StudentModule } from './student/student.module';
+import { CourseModule } from './course/course.module';
 
 @Module({
   imports: [
@@ -22,8 +23,10 @@ import { TestResolver } from './resolvers/test.resolver';
       driver: ApolloDriver,
       useClass: GqlConfigService,
     }),
+    StudentModule,
+    CourseModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TestResolver],
+  providers: [AppService],
 })
 export class AppModule {}
