@@ -6,11 +6,17 @@ import { loggingMiddleware, PrismaModule } from 'nestjs-prisma';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import config from './common/config/config';
-import { GqlConfigService } from './gql-config.service';
 import { StudentModule } from './student/student.module';
 import { CourseModule } from './course/course.module';
 import { ExamModule } from './exam/exam.module';
 import { ExamStudentModule } from './exam-student/exam-student.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CacheConfigService } from './common/config/service/cache-config.service';
+import { GqlConfigService } from './common/config/service/gql-config.service';
+import { APP_GUARD } from '@nestjs/core';
+import { GqlAuthGuard } from './common/guard/gql-auth.guard';
 
 @Module({
   imports: [
@@ -25,12 +31,24 @@ import { ExamStudentModule } from './exam-student/exam-student.module';
       driver: ApolloDriver,
       useClass: GqlConfigService,
     }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useClass: CacheConfigService,
+    }),
     StudentModule,
     CourseModule,
     ExamModule,
     ExamStudentModule,
+    AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: GqlAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

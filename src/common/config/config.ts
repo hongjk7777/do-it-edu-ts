@@ -21,7 +21,12 @@ const config: Config = {
     sortSchema: true,
   },
   security: {
+    expiresIn: '59m',
+    refreshIn: '7d',
     bcryptSaltOrRound: 10,
+  },
+  cache: {
+    ttl: 0,
   },
 };
 

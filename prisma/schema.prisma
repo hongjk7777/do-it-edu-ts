@@ -11,16 +11,34 @@ model test {
   id Int @id @default(autoincrement())
 }
 
+
+enum UserRoleEnum {
+  ADMIN
+  USER
+}
+
+model User {
+  id        Int           @id @default(autoincrement()) @db.UnsignedInt
+  username  String        @db.VarChar(40) @unique
+  password  String        @db.VarChar(255)
+  role      UserRoleEnum  @default(USER)
+  createdAt DateTime      @default(now()) @db.Timestamp(0)
+  updatedAt DateTime      @default(now()) @db.Timestamp(0)
+  student   Student?
+}
+
 model Student {
-  id         Int      @id @default(autoincrement()) @db.UnsignedInt
-  name       String   @db.VarChar(40)
-  phoneNum  String   @unique @db.VarChar(40)
-  courseId  Int      @db.UnsignedInt
-  school     String?  @db.VarChar(40)
-  createdAt DateTime @default(now()) @db.Timestamp(0)
-  updatedAt DateTime @default(now()) @db.Timestamp(0)
-  course     Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "student_ibfk_1")
-  examStudent   ExamStudent[]
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  userId      Int?     @db.UnsignedInt() @unique
+  name        String   @db.VarChar(40)
+  phoneNum    String   @unique @db.VarChar(40)
+  courseId    Int      @db.UnsignedInt
+  school      String?  @db.VarChar(40)
+  createdAt   DateTime @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime @default(now()) @db.Timestamp(0)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "student_ibfk_2")
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "student_ibfk_1")
+  examStudent ExamStudent[]
 
   @@index([courseId], map: "courseId")
 }
@@ -28,8 +46,8 @@ model Student {
 model Course {
   id         Int       @id @default(autoincrement()) @db.UnsignedInt
   name       String    @db.VarChar(40)
-  createdAt DateTime  @default(now()) @db.Timestamp(0)
-  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  createdAt DateTime   @default(now()) @db.Timestamp(0)
+  updatedAt DateTime   @default(now()) @db.Timestamp(0)
   student    Student[]
   exam      Exam[]
 }

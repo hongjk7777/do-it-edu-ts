@@ -2,6 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Auth {
+  """JWT access token"""
+  accessToken: JWT!
+
+  """JWT refresh token"""
+  refreshToken: JWT!
+  user: User!
+}
+
 type Course {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -99,6 +108,16 @@ type ExamStudentScore {
   updatedAt: DateTime!
 }
 
+"""
+A field whose value is a JSON Web Token (JWT): https://jwt.io/introduction.
+"""
+scalar JWT
+
+input LoginInput {
+  password: String!
+  username: String!
+}
+
 type Mutation {
   createCourse(data: CreateCourseInput!): Course!
   createExam(data: CreateExamInput!): Exam!
@@ -110,6 +129,9 @@ type Mutation {
   deleteExamsStudentByExamId(examId: Int!): Boolean!
   deleteStudent(id: Int!): Boolean!
   deleteStudentsByCourseId(id: Int!): Boolean!
+  login(data: LoginInput!): Auth!
+  refreshToken(token: JWT!): Token!
+  signup(data: SignupInput!): Auth!
 }
 
 type Query {
@@ -120,12 +142,24 @@ type Query {
   examStudent(examId: Int!, studentId: Int!): ExamStudent!
   exams(courseId: Int!): [Exam!]!
   getStudentByPhoneNum(phoneNum: String!): Student!
+  getStudentByUserId: Student!
   getStudentExamsByExamId(examId: Int!): [ExamStudent!]!
   getStudentExamsBySeoulDept(seoulDept: String!): [ExamStudent!]!
   getStudentExamsByStudentId(studentId: Int!): [ExamStudent!]!
   getStudentExamsByYonseiDept(yonseiDept: String!): [ExamStudent!]!
   getStudentsByCourseId(courseId: Int!): [Student!]!
   student(id: Int!): Student!
+}
+
+"""User role"""
+enum Role {
+  ADMIN
+  USER
+}
+
+input SignupInput {
+  password: String!
+  username: String!
 }
 
 type Student {
@@ -140,4 +174,24 @@ type Student {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
+}
+
+type Token {
+  """JWT access token"""
+  accessToken: JWT!
+
+  """JWT refresh token"""
+  refreshToken: JWT!
+}
+
+type User {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: ID!
+  role: Role!
+  student: [Student!]
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+  username: String!
 }
