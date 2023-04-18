@@ -8,22 +8,31 @@ services:
     restart: always
     ports:
       - 3000:3000
+    environment:
+      - NODE_ENV=prod
+      - PATH=/usr/local/lib/node_modules/pm2/bin:$PATH
     depends_on:
-      - nest-mysql
+      - nest-redis
     env_file:
-      - .env
+      - ./env/.prod.env
 
-  nest-mysql:
-    image: mysql:8
-    container_name: nest-mysql
+  nest-redis:
+    image: redis:6.2.6-alpine
+    container_name: nest-redis
+    restart: always
+    command: redis-server
+    ports:
+      - 6379:6379
+    expose:
+      - 6379
+
+  nest-nginx:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
     restart: always
     ports:
-      - 3306:3306
-    env_file:
-      - .env
-    volumes:
-      - nest-mysql:/var/lib/mysql
-
-volumes:
-  nest-mysql:
-    name: nest-mysql-db
+      - 80:80
+      - 443:443
+    depends_on:
+      - nest-api

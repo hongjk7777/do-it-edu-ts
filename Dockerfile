@@ -1,4 +1,4 @@
-FROM node:16 AS builder
+FROM node:16-alpine AS builder
 
 # Create app directory
 WORKDIR /app
@@ -9,12 +9,14 @@ COPY prisma ./prisma/
 
 # Install app dependencies
 RUN npm install
+RUN npm install pm2 -g
 
 COPY . .
+COPY env/.prod.env ./.env
 
 RUN npm run build
 
-FROM node:16
+FROM node:16-alpine
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./

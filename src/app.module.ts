@@ -17,10 +17,20 @@ import { CacheConfigService } from './common/config/service/cache-config.service
 import { GqlConfigService } from './common/config/service/gql-config.service';
 import { APP_GUARD } from '@nestjs/core';
 import { GqlAuthGuard } from './common/guard/gql-auth.guard';
+import Joi from 'joi';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, load: [config] }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [config],
+      envFilePath: `env/.${process.env.NODE_ENV}.env`,
+      validationSchema: Joi.object({
+        DATABASE_URL: Joi.string().required(),
+        JWT_ACCESS_SECRET: Joi.string().required(),
+        JWT_REFRESH_SECRET: Joi.string().required(),
+      }),
+    }),
     PrismaModule.forRoot({
       isGlobal: true,
       prismaServiceOptions: {
