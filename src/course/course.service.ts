@@ -19,7 +19,6 @@ export class CourseService {
         ...payload,
       },
     });
-    console.log(course);
 
     return course;
   }

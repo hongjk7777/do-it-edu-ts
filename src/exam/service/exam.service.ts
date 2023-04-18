@@ -73,7 +73,9 @@ export class ExamService {
     }
   }
 
-  createExamScoreList(examDatas: CreateExamInput): CreateExamScoreInput[] {
+  private createExamScoreList(
+    examDatas: CreateExamInput,
+  ): CreateExamScoreInput[] {
     const examScoreList = [];
 
     for (const [index, maxScore] of examDatas.maxScores.entries()) {

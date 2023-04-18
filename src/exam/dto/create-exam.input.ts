@@ -1,4 +1,4 @@
-import { Field, Float, ID, InputType, Int } from '@nestjs/graphql';
+import { Field, Float, InputType, Int } from '@nestjs/graphql';
 import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 
 @InputType()
@@ -12,7 +12,7 @@ export class CreateExamInput {
   @IsOptional()
   commonRound?: number;
 
-  @Field(() => ID)
+  @Field(() => Int)
   @IsNotEmpty()
   @Min(1)
   courseId: number;

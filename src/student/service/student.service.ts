@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Student } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateStudentInput } from '../dto/create-student.input';
@@ -7,7 +7,10 @@ import { CreateStudentInput } from '../dto/create-student.input';
 export class StudentService {
   constructor(private prisma: PrismaService) {}
 
-  async save(studentDatas: CreateStudentInput): Promise<Student> {
+  async save(
+    studentDatas: CreateStudentInput,
+    userId: number,
+  ): Promise<Student> {
     const findStudent = await this.prisma.student.findUnique({
       where: {
         phoneNum: studentDatas.phoneNum,
@@ -15,12 +18,25 @@ export class StudentService {
     });
 
     if (findStudent) {
-      throw Error('중복된 이메일입니다.');
+      throw new BadRequestException('동일한 학생이 존재합니다.');
     }
 
     const savedStudent = await this.prisma.student.create({
       data: {
-        ...studentDatas,
+        name: studentDatas.name,
+        phoneNum: studentDatas.phoneNum,
+        course: {
+          connect: {
+            id: studentDatas.courseId,
+          },
+        },
+        school: studentDatas.school,
+        // ...studentDatas,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
       },
     });
 
@@ -51,6 +67,16 @@ export class StudentService {
     const findStudent: Student = await this.prisma.student.findUnique({
       where: {
         phoneNum: phoneNum,
+      },
+    });
+
+    return findStudent;
+  }
+
+  async findOneByUserId(userId: number): Promise<Student> {
+    const findStudent: Student = await this.prisma.student.findUnique({
+      where: {
+        userId: userId,
       },
     });
 

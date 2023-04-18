@@ -1,4 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import UserInfo from 'src/auth/dto/user-info.dto';
+import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import { CreateStudentInput } from '../dto/create-student.input';
 import { Student } from '../model/student.model';
 import { StudentService } from '../service/student.service';
@@ -9,7 +11,9 @@ export class StudentResolver {
 
   @Mutation(() => Student)
   async createStudent(@Args('data') studentDatas: CreateStudentInput) {
-    return await this.studentService.save(studentDatas);
+    //TODO: 여기에 데코레이터로 아이디 받아오기
+    const userId = 0;
+    return await this.studentService.save(studentDatas, userId);
   }
 
   @Query(() => Student)
@@ -20,6 +24,11 @@ export class StudentResolver {
   @Query(() => Student)
   async getStudentByPhoneNum(@Args('phoneNum') phoneNum: string) {
     return await this.studentService.findOneByPhoneNum(phoneNum);
+  }
+
+  @Query(() => Student)
+  async getStudentByUserId(@CurrentUser() user: UserInfo) {
+    return await this.studentService.findOneByUserId(user.id);
   }
 
   @Query(() => [Student])
