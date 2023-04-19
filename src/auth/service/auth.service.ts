@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '@user/user.service';
 import UserInfo from '../dto/user-info.dto';
 import { SignupInput } from '../input/signup.input';
 import { PasswordService } from './password-service.service';

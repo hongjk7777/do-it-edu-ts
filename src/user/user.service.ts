@@ -1,7 +1,7 @@
+import { SignupInput } from '@auth/input/signup.input';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import { SignupInput } from 'src/auth/input/signup.input';
 
 @Injectable()
 export class UserService {

@@ -1,11 +1,11 @@
+import { SecurityConfig } from '@common/config/config.interface';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
+import { UserService } from '@user/user.service';
 import { Cache } from 'cache-manager';
-import { SecurityConfig } from 'src/common/config/config.interface';
-import { UserService } from 'src/user/user.service';
 import { Token } from '../domain/token.model';
 
 @Injectable()

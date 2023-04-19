@@ -1,4 +1,6 @@
+import { ExamService } from '@exam/service/exam.service';
 import { Test, TestingModule } from '@nestjs/testing';
+import { PrismaService } from 'nestjs-prisma';
 import { ExamResolver } from './exam.resolver';
 
 describe('ExamResolver', () => {
@@ -6,7 +8,7 @@ describe('ExamResolver', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [ExamResolver],
+      providers: [ExamResolver, ExamService, PrismaService],
     }).compile();
 
     resolver = module.get<ExamResolver>(ExamResolver);

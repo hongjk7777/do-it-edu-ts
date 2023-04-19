@@ -3,21 +3,21 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { loggingMiddleware, PrismaModule } from 'nestjs-prisma';
+import Joi from 'joi';
+import config from '@common/config/config';
+import { GqlConfigService } from '@common/config/service/gql-config.service';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CacheConfigService } from '@common/config/service/cache-config.service';
+import { StudentModule } from '@student/student.module';
+import { CourseModule } from '@course/course.module';
+import { ExamModule } from '@exam/exam.module';
+import { ExamStudentModule } from '@exam-student/exam-student.module';
+import { AuthModule } from '@auth/auth.module';
+import { UserModule } from '@user/user.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import config from './common/config/config';
-import { StudentModule } from './student/student.module';
-import { CourseModule } from './course/course.module';
-import { ExamModule } from './exam/exam.module';
-import { ExamStudentModule } from './exam-student/exam-student.module';
-import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
-import { CacheModule } from '@nestjs/cache-manager';
-import { CacheConfigService } from './common/config/service/cache-config.service';
-import { GqlConfigService } from './common/config/service/gql-config.service';
 import { APP_GUARD } from '@nestjs/core';
-import { GqlAuthGuard } from './common/guard/gql-auth.guard';
-import Joi from 'joi';
+import { GqlAuthGuard } from '@common/guard/gql-auth.guard';
 
 @Module({
   imports: [

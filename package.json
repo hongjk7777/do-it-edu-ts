@@ -77,6 +77,7 @@
     "ts-jest": "29.0.3",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^4.7.4"
   },
   "jest": {
@@ -94,7 +95,16 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@auth/(.*)$": "<rootDir>/auth/$1",
+      "^@common/(.*)$": "<rootDir>/common/$1",
+      "^@course/(.*)$": "<rootDir>/course/$1",
+      "^@exam/(.*)$": "<rootDir>/exam/$1",
+      "^@exam-student/(.*)$": "<rootDir>/exam-student/$1",
+      "^@student/(.*)$": "<rootDir>/student/$1",
+      "^@user/(.*)$": "<rootDir>/user/$1"
+    }
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

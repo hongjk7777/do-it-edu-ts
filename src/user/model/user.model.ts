@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { ObjectType, Field, registerEnumType } from '@nestjs/graphql';
-import { BaseModel } from 'src/common/model/base.model';
-import { Student } from 'src/student/model/student.model';
 import { UserRoleEnum } from '@prisma/client';
+import { BaseModel } from '@common/model/base.model';
+import { Student } from '@student/model/student.model';
 
 registerEnumType(UserRoleEnum, {
   name: 'Role',

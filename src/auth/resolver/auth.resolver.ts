@@ -1,3 +1,4 @@
+import { Public } from '@common/decorator/public.decorator';
 import {
   Resolver,
   Mutation,
@@ -5,8 +6,7 @@ import {
   Parent,
   ResolveField,
 } from '@nestjs/graphql';
-import { Public } from 'src/common/decorator/public.decorator';
-import { User } from 'src/user/model/user.moel';
+import { User } from '@user/model/user.model';
 import { Auth } from '../domain/auth.model';
 import { Token } from '../domain/token.model';
 import { LoginInput } from '../input/login.input';

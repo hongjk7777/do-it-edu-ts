@@ -17,6 +17,15 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@auth/*": ["src/auth/*"],
+      "@common/*": ["src/common/*"],
+      "@course/*": ["src/course/*"],
+      "@exam/*": ["src/exam/*"],
+      "@exam-student/*": ["src/exam-student/*"],
+      "@student/*": ["src/student/*"],
+      "@user/*": ["src/user/*"]
+    }
   }
 }

@@ -1,6 +1,6 @@
+import UserInfo from '@auth/dto/user-info.dto';
+import { CurrentUser } from '@common/decorator/current-user.decorator';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import UserInfo from 'src/auth/dto/user-info.dto';
-import { CurrentUser } from 'src/common/decorator/current-user.decorator';
 import { CreateStudentInput } from '../dto/create-student.input';
 import { Student } from '../model/student.model';
 import { StudentService } from '../service/student.service';
