@@ -1,7 +1,7 @@
+import { CreateCourseInput } from '@course/dto/create-course.input';
 import { Injectable } from '@nestjs/common';
 import { Course } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import { CreateCourseInput } from './dto/create-course.input';
 
 @Injectable()
 export class CourseService {

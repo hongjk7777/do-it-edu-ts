@@ -3,10 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { PasswordService } from './password-service.service';
 import { TokenService } from './token.service';
-import { UserService } from '@user/user.service';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'nestjs-prisma';
 import { CacheModule } from '@nestjs/cache-manager';
+import { UserService } from '@user/service/user.service';
 
 describe('AuthService', () => {
   let service: AuthService;

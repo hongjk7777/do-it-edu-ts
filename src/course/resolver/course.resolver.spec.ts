@@ -1,7 +1,7 @@
+import { CourseService } from '@course/service/course.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
 import { CourseResolver } from './course.resolver';
-import { CourseService } from './course.service';
 
 describe('CourseResolver', () => {
   let resolver: CourseResolver;

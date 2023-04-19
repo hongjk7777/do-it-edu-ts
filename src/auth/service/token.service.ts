@@ -4,7 +4,7 @@ import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { UserService } from '@user/user.service';
+import { UserService } from '@user/service/user.service';
 import { Cache } from 'cache-manager';
 import { Token } from '../domain/token.model';
 
