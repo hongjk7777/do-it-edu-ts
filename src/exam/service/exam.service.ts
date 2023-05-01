@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Exam } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
@@ -120,6 +120,10 @@ export class ExamService {
         },
       },
     });
+
+    if (findExam === null) {
+      throw new BadRequestException('해당하는 시험이 존재하지 않습니다.');
+    }
 
     return findExam;
   }

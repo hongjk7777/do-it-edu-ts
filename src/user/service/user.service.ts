@@ -36,6 +36,10 @@ export class UserService {
       },
     });
 
+    if (findUser === null) {
+      throw new BadRequestException('존재하는 회원이 없습니다.');
+    }
+
     return findUser;
   }
 
@@ -45,6 +49,10 @@ export class UserService {
         username: username,
       },
     });
+
+    if (findUser === null) {
+      throw new BadRequestException('존재하는 회원이 없습니다.');
+    }
 
     return findUser;
   }

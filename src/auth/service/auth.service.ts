@@ -23,7 +23,7 @@ export class AuthService {
   async login(username: string, pass: string) {
     const findUser = await this.userService.findOneByUsername(username);
 
-    const passwordValid = this.passwordService.validatePassword(
+    const passwordValid = await this.passwordService.validatePassword(
       pass,
       findUser.password,
     );

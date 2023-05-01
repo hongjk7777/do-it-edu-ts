@@ -60,6 +60,10 @@ export class StudentService {
       },
     });
 
+    if (findStudent === null) {
+      throw new BadRequestException('해당하는 학생이 없습니다.');
+    }
+
     return findStudent;
   }
 
@@ -70,6 +74,10 @@ export class StudentService {
       },
     });
 
+    if (findStudent === null) {
+      throw new BadRequestException('해당하는 학생이 없습니다.');
+    }
+
     return findStudent;
   }
 
@@ -79,6 +87,10 @@ export class StudentService {
         userId: userId,
       },
     });
+
+    if (findStudent === null) {
+      throw new BadRequestException('해당하는 학생이 없습니다.');
+    }
 
     return findStudent;
   }
