@@ -1,5 +1,9 @@
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Exam } from '@prisma/client';
 import { Exam as ExamModel } from '@exam/model/exam.model';
 import { PrismaService } from 'nestjs-prisma';
@@ -242,6 +246,10 @@ export class ExamService {
         },
       },
     });
+
+    if (findExam === null) {
+      throw new BadRequestException('해당하는 시험이 존재하지 않습니다.');
+    }
 
     return findExam;
   }

@@ -1,5 +1,9 @@
 import { CreateCourseInput } from '@course/dto/create-course.input';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { Course } from '@prisma/client';
 import { Course as CourseModel } from '@course/model/course.model';
 import { PrismaService } from 'nestjs-prisma';
@@ -47,6 +51,16 @@ export class CourseService {
   }
 
   async save(payload: CreateCourseInput): Promise<Course> {
+    const findCourse = await this.prisma.course.findUnique({
+      where: {
+        name: payload.name,
+      },
+    });
+
+    if (findCourse) {
+      throw new BadRequestException('중복되는 이름의 분반이 존재합니다.');
+    }
+
     const course = await this.prisma.course.create({
       data: {
         ...payload,
