@@ -33,17 +33,11 @@ export class AuthResolver {
   }
 
   @Public()
-  @Mutation(() => Auth)
+  @Mutation(() => Token)
   async login(@Args('data') { username, password }: LoginInput) {
-    const { accessToken, refreshToken } = await this.authService.login(
-      username,
-      password,
-    );
+    const token = await this.authService.login(username, password);
 
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return token;
   }
 
   @Public()

@@ -6,6 +6,12 @@ type Auth {
   """JWT access token"""
   accessToken: JWT!
 
+  """access token expiration time(second)"""
+  expiresIn: Int!
+
+  """refresh token expiration time(second)"""
+  refreshIn: Int!
+
   """JWT refresh token"""
   refreshToken: JWT!
   user: User!
@@ -129,7 +135,7 @@ type Mutation {
   deleteExamsStudentByExamId(examId: Int!): Boolean!
   deleteStudent(id: Int!): Boolean!
   deleteStudentsByCourseId(id: Int!): Boolean!
-  login(data: LoginInput!): Auth!
+  login(data: LoginInput!): Token!
   refreshToken(token: JWT!): Token!
   signup(data: SignupInput!): Auth!
 }
@@ -179,6 +185,12 @@ type Student {
 type Token {
   """JWT access token"""
   accessToken: JWT!
+
+  """access token expiration time(second)"""
+  expiresIn: Int!
+
+  """refresh token expiration time(second)"""
+  refreshIn: Int!
 
   """JWT refresh token"""
   refreshToken: JWT!

@@ -21,9 +21,17 @@ export class TokenService {
   ) {}
 
   async generateTokens(payload: { userId: string }): Promise<Token> {
+    const securityConfig = this.configService.get<SecurityConfig>('security');
+
+    const expiresIn = parseInt(securityConfig.expiresIn.substring(0, 2)) * 60;
+    const refreshIn =
+      parseInt(securityConfig.refreshIn.substring(0, 1)) * 60 * 60 * 12;
+
     const tokens: Token = {
       accessToken: this.generateAccessToken(payload),
+      expiresIn: expiresIn,
       refreshToken: this.generateRefreshToken(payload),
+      refreshIn: refreshIn,
     };
 
     await this.updateTokens(payload, tokens);
@@ -45,13 +53,17 @@ export class TokenService {
   }
 
   private generateAccessToken(payload: { userId: string }): string {
+    const securityConfig = this.configService.get<SecurityConfig>('security');
+
     return this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_ACCESS_SECRET'),
+      expiresIn: securityConfig.expiresIn,
     });
   }
 
   private generateRefreshToken(payload: { userId: string }): string {
     const securityConfig = this.configService.get<SecurityConfig>('security');
+
     return this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_REFRESH_SECRET'),
       expiresIn: securityConfig.refreshIn,
