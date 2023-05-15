@@ -1,5 +1,10 @@
 import { SignupInput } from '@auth/input/signup.input';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
@@ -15,9 +20,7 @@ export class UserService {
     });
 
     if (duplicatedUser) {
-      throw new BadRequestException(
-        '이미 같은 번호로 가입된 회원이 존재합니다.',
-      );
+      throw new ConflictException('이미 같은 번호로 가입된 회원이 존재합니다.');
     }
 
     const savedUser = await this.prisma.user.create({
@@ -36,6 +39,12 @@ export class UserService {
       },
     });
 
+    console.log(findUser);
+
+    if (!findUser) {
+      throw new NotFoundException('해당하는 유저가 없습니다.');
+    }
+
     return findUser;
   }
 
@@ -45,6 +54,10 @@ export class UserService {
         username: username,
       },
     });
+
+    if (!findUser) {
+      throw new NotFoundException('해당하는 유저가 없습니다.');
+    }
 
     return findUser;
   }

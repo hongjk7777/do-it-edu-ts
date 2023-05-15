@@ -1,5 +1,5 @@
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Exam } from '@prisma/client';
 import { Exam as ExamModel } from '@exam/model/exam.model';
 import { PrismaService } from 'nestjs-prisma';
@@ -20,8 +20,6 @@ export class ExamService {
       examScoreRuleList,
     );
 
-    console.log(savedExam);
-
     await this.upsertExamScore(examScoreList, savedExam);
     await this.upsertExamScoreRule(examScoreRuleList, savedExam);
 
@@ -33,7 +31,7 @@ export class ExamService {
     examScoreList: CreateExamScoreInput[],
     examScoreRuleList: CreateExamScoreRuleInput[],
   ) {
-    return await this.prisma.exam.upsert({
+    const upsertedExam = await this.prisma.exam.upsert({
       where: {
         round_courseId: {
           round: examDatas.round,
@@ -55,6 +53,12 @@ export class ExamService {
         },
       },
     });
+
+    if (!upsertedExam) {
+      throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
+    }
+
+    return upsertedExam;
   }
 
   private async upsertExamScore(
@@ -62,7 +66,7 @@ export class ExamService {
     savedExam: Exam,
   ) {
     for (const examScore of examScoreList) {
-      await this.prisma.examScore.upsert({
+      const upsertedExamScore = await this.prisma.examScore.upsert({
         where: {
           examId_problemNumber: {
             examId: savedExam.id,
@@ -83,6 +87,10 @@ export class ExamService {
           },
         },
       });
+
+      if (!upsertedExamScore) {
+        throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
+      }
     }
   }
 
@@ -91,7 +99,7 @@ export class ExamService {
     savedExam: Exam,
   ) {
     for (const examScoreRule of examScoreRuleList) {
-      await this.prisma.examScoreRule.upsert({
+      const upesertedExamScoreRule = await this.prisma.examScoreRule.upsert({
         where: {
           examId_problemNumber: {
             examId: savedExam.id,
@@ -112,6 +120,10 @@ export class ExamService {
           },
         },
       });
+
+      if (!upesertedExamScoreRule) {
+        throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
+      }
     }
   }
 

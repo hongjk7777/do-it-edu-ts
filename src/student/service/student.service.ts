@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Student } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateStudentInput } from '../dto/create-student.input';
@@ -60,6 +64,10 @@ export class StudentService {
       },
     });
 
+    if (!findStudent) {
+      throw new NotFoundException('해당하는 학생이 없습니다.');
+    }
+
     return findStudent;
   }
 
@@ -70,6 +78,10 @@ export class StudentService {
       },
     });
 
+    if (!findStudent) {
+      throw new NotFoundException('해당하는 학생이 없습니다.');
+    }
+
     return findStudent;
   }
 
@@ -79,6 +91,10 @@ export class StudentService {
         userId: userId,
       },
     });
+
+    if (!findStudent) {
+      throw new NotFoundException('해당하는 학생이 없습니다.');
+    }
 
     return findStudent;
   }

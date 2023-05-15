@@ -1,5 +1,5 @@
 import { CreateCourseInput } from '@course/dto/create-course.input';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Course } from '@prisma/client';
 import { Course as CourseModel } from '@course/model/course.model';
 import { PrismaService } from 'nestjs-prisma';
@@ -57,11 +57,15 @@ export class CourseService {
   }
 
   async findOneById(courseId: number): Promise<Course> {
-    const findCourseList = await this.prisma.course.findUnique({
+    const findCourse = await this.prisma.course.findUnique({
       where: { id: courseId },
     });
 
-    return findCourseList;
+    if (!findCourse) {
+      throw new NotFoundException('분반 조회 중 오류가 발생했습니다.');
+    }
+
+    return findCourse;
   }
 
   async deleteById(courseId: number): Promise<void> {

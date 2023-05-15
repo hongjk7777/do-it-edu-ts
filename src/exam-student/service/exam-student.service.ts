@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ExamStudent } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamStudentScoreInput } from '../dto/create-exam-student-score.input';
@@ -21,7 +21,7 @@ export class ExamStudentService {
   }
 
   private async upsertExamStudent(examStudentDatas: CreateExamStudentInput) {
-    return await this.prisma.examStudent.upsert({
+    const examStudent = await this.prisma.examStudent.upsert({
       where: {
         examId_studentId: {
           examId: examStudentDatas.examId,
@@ -49,6 +49,12 @@ export class ExamStudentService {
         yonseiDept: examStudentDatas.yonseiDept,
       },
     });
+
+    if (!examStudent) {
+      throw new NotFoundException('학생 성적 입력 중 오류가 발생했습니다.');
+    }
+
+    return examStudent;
   }
 
   private async upsertExamStudentScore(
@@ -56,7 +62,7 @@ export class ExamStudentService {
     savedExamStudent: ExamStudent,
   ) {
     for (const examStudentScore of examStudentScoreList) {
-      await this.prisma.examStudentScore.upsert({
+      const upsertExamStudentScore = await this.prisma.examStudentScore.upsert({
         where: {
           examStudentId_problemNumber: {
             examStudentId: savedExamStudent.id,
@@ -77,6 +83,10 @@ export class ExamStudentService {
           },
         },
       });
+
+      if (!upsertExamStudentScore) {
+        throw new NotFoundException('학생 성적 입력 중 오류가 발생했습니다.');
+      }
     }
   }
 
@@ -111,6 +121,10 @@ export class ExamStudentService {
         examStudentScore: true,
       },
     });
+
+    if (!findExamStudent) {
+      throw new NotFoundException('성적 확인 중 오류가 발생했습니다.');
+    }
 
     return findExamStudent;
   }
