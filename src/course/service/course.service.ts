@@ -1,16 +1,49 @@
 import { CreateCourseInput } from '@course/dto/create-course.input';
 import { Injectable } from '@nestjs/common';
 import { Course } from '@prisma/client';
+import { Course as CourseModel } from '@course/model/course.model';
 import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class CourseService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll(): Promise<Course[]> {
+  async findAll(): Promise<CourseModel[]> {
     const findCourseList = await this.prisma.course.findMany({});
+    const courseModelList: CourseModel[] = [];
 
-    return findCourseList;
+    for (const findCourse of findCourseList) {
+      const studentCount = await this.prisma.student.count({
+        where: {
+          courseId: findCourse.id,
+        },
+      });
+
+      const examCount = await this.prisma.exam.count({
+        where: {
+          courseId: findCourse.id,
+        },
+      });
+
+      courseModelList.push(
+        this.addCountToCourse(findCourse, studentCount, examCount),
+      );
+    }
+
+    return courseModelList;
+  }
+
+  addCountToCourse(course: Course, studentCount: number, examCount: number) {
+    const courseModel = new CourseModel();
+
+    courseModel.id = course.id.toString();
+    courseModel.name = course.name;
+    courseModel.createdAt = course.createdAt;
+    courseModel.updatedAt = course.updatedAt;
+    courseModel.studentCount = studentCount;
+    courseModel.examCount = examCount;
+
+    return courseModel;
   }
 
   async save(payload: CreateCourseInput): Promise<Course> {

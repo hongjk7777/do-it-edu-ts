@@ -20,8 +20,10 @@ type Auth {
 type Course {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  examCount: Int!
   id: ID!
   name: String!
+  studentCount: Int!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
