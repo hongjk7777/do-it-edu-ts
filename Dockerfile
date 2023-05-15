@@ -14,6 +14,8 @@ RUN npm install pm2 -g
 COPY . .
 COPY env/.prod.env ./.env
 
+RUN npm run prisma:generate
+RUN npm run migrate:deploy
 RUN npm run build
 
 FROM node:16-alpine
