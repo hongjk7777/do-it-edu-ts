@@ -1,5 +1,6 @@
 import { BaseModel } from '@common/model/base.model';
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import { ExamScoreRule } from './exam-score-rule.model';
 import { ExamScore } from './exam-score.model';
 
 @ObjectType()
@@ -19,8 +20,8 @@ export class Exam extends BaseModel {
   @Field(() => Float)
   standardDeviation: number;
 
-  @Field(() => String)
-  scoreRule: string;
+  @Field(() => [ExamScoreRule])
+  scoreRule: ExamScoreRule[];
 
   @Field(() => Float)
   topScore: number;

@@ -1,5 +1,7 @@
+import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
 import { Injectable } from '@nestjs/common';
 import { Exam } from '@prisma/client';
+import { Exam as ExamModel } from '@exam/model/exam.model';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
 import { CreateExamInput } from '../dto/create-exam.input';
@@ -10,9 +12,18 @@ export class ExamService {
 
   async save(examDatas: CreateExamInput): Promise<Exam> {
     const examScoreList = this.createExamScoreList(examDatas);
+    const examScoreRuleList = this.createExamScoreRuleList(examDatas);
 
-    const savedExam = await this.upsertExam(examDatas, examScoreList);
+    const savedExam = await this.upsertExam(
+      examDatas,
+      examScoreList,
+      examScoreRuleList,
+    );
+
+    console.log(savedExam);
+
     await this.upsertExamScore(examScoreList, savedExam);
+    await this.upsertExamScoreRule(examScoreRuleList, savedExam);
 
     return savedExam;
   }
@@ -20,6 +31,7 @@ export class ExamService {
   private async upsertExam(
     examDatas: CreateExamInput,
     examScoreList: CreateExamScoreInput[],
+    examScoreRuleList: CreateExamScoreRuleInput[],
   ) {
     return await this.prisma.exam.upsert({
       where: {
@@ -30,15 +42,16 @@ export class ExamService {
       },
       update: {
         commonRound: examDatas.commonRound,
-        scoreRule: examDatas.scoreRule,
       },
       create: {
         round: examDatas.round,
         commonRound: examDatas.commonRound,
         courseId: examDatas.courseId,
-        scoreRule: examDatas.scoreRule,
         examScore: {
           create: examScoreList,
+        },
+        scoreRule: {
+          create: examScoreRuleList,
         },
       },
     });
@@ -73,6 +86,35 @@ export class ExamService {
     }
   }
 
+  private async upsertExamScoreRule(
+    examScoreRuleList: CreateExamScoreRuleInput[],
+    savedExam: Exam,
+  ) {
+    for (const examScoreRule of examScoreRuleList) {
+      await this.prisma.examScoreRule.upsert({
+        where: {
+          examId_problemNumber: {
+            examId: savedExam.id,
+            problemNumber: examScoreRule.problemNumber,
+          },
+        },
+        update: {
+          problemNumber: examScoreRule.problemNumber,
+          scoreRule: examScoreRule.scoreRule,
+        },
+        create: {
+          problemNumber: examScoreRule.problemNumber,
+          scoreRule: examScoreRule.scoreRule,
+          exam: {
+            connect: {
+              id: savedExam.id,
+            },
+          },
+        },
+      });
+    }
+  }
+
   private createExamScoreList(
     examDatas: CreateExamInput,
   ): CreateExamScoreInput[] {
@@ -84,6 +126,19 @@ export class ExamService {
     }
 
     return examScoreList;
+  }
+
+  private createExamScoreRuleList(
+    examDatas: CreateExamInput,
+  ): CreateExamScoreRuleInput[] {
+    const examScoreRuleList = [];
+
+    for (const [index, scoreRule] of examDatas.scoreRule.entries()) {
+      const examScoreRule = new CreateExamScoreRuleInput(index + 1, scoreRule);
+      examScoreRuleList.push(examScoreRule);
+    }
+
+    return examScoreRuleList;
   }
 
   async findAllByCourseId(courseId: number): Promise<Exam[]> {

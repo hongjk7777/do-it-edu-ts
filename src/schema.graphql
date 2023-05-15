@@ -38,7 +38,7 @@ input CreateExamInput {
   courseId: Int!
   maxScores: [Float!]!
   round: Int!
-  scoreRule: String!
+  scoreRule: [String!]!
 }
 
 input CreateExamStudentInput {
@@ -71,7 +71,7 @@ type Exam {
   examScore: [ExamScore!]!
   id: ID!
   round: Int!
-  scoreRule: String!
+  scoreRule: [ExamScoreRule!]!
   standardDeviation: Float!
   topScore: Float!
   totalTester: Int!
@@ -86,6 +86,17 @@ type ExamScore {
   id: ID!
   maxScore: Float!
   problemNumber: Int!
+
+  """Identifies the date and time when the object was last updated."""
+  updatedAt: DateTime!
+}
+
+type ExamScoreRule {
+  """Identifies the date and time when the object was created."""
+  createdAt: DateTime!
+  id: ID!
+  problemNumber: Int!
+  scoreRule: String!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -143,7 +154,7 @@ type Mutation {
 }
 
 type Query {
-  commonExams(commonRound: Int!): [Exam!]!
+  commonExams: [Exam!]!
   course(id: Int!): Course!
   courses: [Course!]!
   exam(courseId: Int!, round: Int!): Exam!

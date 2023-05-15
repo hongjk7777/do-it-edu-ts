@@ -59,13 +59,13 @@ model Exam {
   courseId  Int       @db.UnsignedInt 
   average   Float     @db.Float @default(0)
   standardDeviation Float @db.Float @default(0)
-  scoreRule String?   @db.VarChar(4000)
   topScore  Float     @db.Float @default(0)
   totalTester Int     @db.UnsignedInt @default(0)
   createdAt DateTime  @default(now()) @db.Timestamp(0)
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
   course     Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "exam_ibfk_1")
   examScore ExamScore[]
+  scoreRule ExamScoreRule[]
   examStduent ExamStudent[]
 
   @@unique([round, courseId])
@@ -79,6 +79,18 @@ model ExamScore {
   createdAt DateTime  @default(now()) @db.Timestamp(0)
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
   exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_score_ibfk_1")
+
+  @@unique([examId, problemNumber])
+}
+
+model ExamScoreRule {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  examId    Int       @db.UnsignedInt 
+  problemNumber Int   @db.UnsignedInt
+  scoreRule  String   @db.VarChar(5000)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_score_ibfk_2")
 
   @@unique([examId, problemNumber])
 }

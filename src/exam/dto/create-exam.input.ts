@@ -17,9 +17,9 @@ export class CreateExamInput {
   @Min(1)
   courseId: number;
 
-  @Field()
+  @Field(() => [String])
   @IsNotEmpty()
-  scoreRule: string;
+  scoreRule: string[];
 
   @Field(() => [Float])
   @IsNotEmpty()
