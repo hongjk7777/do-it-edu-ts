@@ -84,7 +84,7 @@ type ExamScore {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   id: ID!
-  maxScore: Int!
+  maxScore: Float!
   problemNumber: Int!
 
   """Identifies the date and time when the object was last updated."""

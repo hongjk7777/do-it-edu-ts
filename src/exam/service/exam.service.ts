@@ -142,6 +142,47 @@ export class ExamService {
     return findExamList;
   }
 
+  async findAllCommonExams(): Promise<Exam[]> {
+    const findExamList = [];
+
+    const commonRoundList = await this.prisma.exam.groupBy({
+      where: {
+        commonRound: {
+          gt: 0,
+        },
+      },
+      by: ['commonRound'],
+    });
+
+    for (const commonRound of commonRoundList) {
+      const exam = await this.prisma.exam.findFirst({
+        where: {
+          commonRound: commonRound.commonRound,
+        },
+        include: {
+          examScore: {
+            orderBy: [
+              {
+                problemNumber: 'asc',
+              },
+            ],
+          },
+          scoreRule: {
+            orderBy: [
+              {
+                problemNumber: 'asc',
+              },
+            ],
+          },
+        },
+      });
+
+      findExamList.push(exam);
+    }
+
+    return findExamList;
+  }
+
   async deleteAllByCourseId(courseId: number): Promise<void> {
     await this.prisma.exam.deleteMany({
       where: { courseId: courseId },

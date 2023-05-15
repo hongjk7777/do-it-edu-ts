@@ -18,9 +18,14 @@ export class ExamResolver {
   }
 
   @Query(() => [Exam])
-  async commonExams(@Args('commonRound') commonRound: number) {
-    return await this.examService.findAllByCommonRound(commonRound);
+  async commonExams() {
+    return await this.examService.findAllCommonExams();
   }
+
+  // @Query(() => [Exam])
+  // async commonExams(@Args('commonRound') commonRound: number) {
+  //   return await this.examService.findAllByCommonRound(commonRound);
+  // }
 
   @Mutation(() => Exam)
   async createExam(@Args('data') data: CreateExamInput) {
