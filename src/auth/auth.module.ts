@@ -19,6 +19,7 @@ import { UserModule } from '@user/user.module';
     AtStrategy,
     AuthResolver,
   ],
+  exports: [AuthService],
   controllers: [],
 })
 export class AuthModule {}

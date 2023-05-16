@@ -6,7 +6,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 @Resolver()
 export class CourseResolver {
   constructor(private courseService: CourseService) {}
-
+  //
   @Query(() => [Course])
   async courses() {
     return await this.courseService.findAll();
@@ -15,6 +15,11 @@ export class CourseResolver {
   @Mutation(() => Course)
   async createCourse(@Args('data') data: CreateCourseInput) {
     return this.courseService.save(data);
+  }
+
+  @Mutation(() => Course)
+  async updateCourse(@Args('data') data: CreateCourseInput) {
+    return this.courseService.update(data);
   }
 
   @Query(() => Course)

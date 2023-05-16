@@ -1,3 +1,4 @@
+import { InitPasswordInput } from '@auth/input/init-password.input';
 import { Public } from '@common/decorator/public.decorator';
 import {
   Resolver,
@@ -7,6 +8,7 @@ import {
   ResolveField,
 } from '@nestjs/graphql';
 import { User } from '@user/model/user.model';
+import { UserService } from '@user/service/user.service';
 import { Auth } from '../domain/auth.model';
 import { Token } from '../domain/token.model';
 import { LoginInput } from '../input/login.input';
@@ -20,6 +22,7 @@ export class AuthResolver {
   constructor(
     private readonly authService: AuthService,
     private readonly tokenService: TokenService,
+    private readonly userService: UserService,
   ) {}
 
   @Public()
@@ -30,6 +33,16 @@ export class AuthResolver {
       accessToken,
       refreshToken,
     };
+  }
+
+  @Mutation(() => User)
+  async initPassword(@Args('data') data: InitPasswordInput) {
+    const user = await this.userService.updatePassword(data);
+    console.log(user);
+    console.log(user);
+    console.log(user);
+
+    return user;
   }
 
   @Public()

@@ -3,14 +3,14 @@ import { IsNotEmpty, IsOptional, Min } from 'class-validator';
 
 @InputType()
 export class CreateExamInput {
-  @Field(() => Int)
-  @IsNotEmpty()
-  @Min(1)
-  round: number;
+  // @Field(() => Int)
+  // @IsNotEmpty()
+  // @Min(1)
+  // round: number;
 
-  @Field(() => Int, { nullable: true })
-  @IsOptional()
-  commonRound?: number;
+  @Field(() => Boolean)
+  @IsNotEmpty()
+  isCommonRound: boolean;
 
   @Field(() => Int)
   @IsNotEmpty()
@@ -18,10 +18,10 @@ export class CreateExamInput {
   courseId: number;
 
   @Field(() => [String])
-  @IsNotEmpty()
-  scoreRule: string[];
+  @IsOptional()
+  scoreRule: string[] = ['', '', ''];
 
   @Field(() => [Float])
-  @IsNotEmpty()
-  maxScores: number[];
+  @IsOptional()
+  maxScores: number[] = [0, 0, 0];
 }

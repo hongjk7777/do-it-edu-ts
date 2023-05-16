@@ -56,6 +56,25 @@ export class CourseService {
     return course;
   }
 
+  async update(payload: CreateCourseInput): Promise<Course> {
+    await this.prisma.course.findMany({});
+
+    const course = await this.prisma.course.update({
+      where: {
+        id: payload.id,
+      },
+      data: {
+        name: payload.name,
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException('해당하는 분반이 존재하지 않습니다.');
+    }
+
+    return course;
+  }
+
   async findOneById(courseId: number): Promise<Course> {
     const findCourse = await this.prisma.course.findUnique({
       where: { id: courseId },

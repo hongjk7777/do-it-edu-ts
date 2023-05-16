@@ -1,16 +1,22 @@
+import { InitPasswordInput } from '@auth/input/init-password.input';
 import { SignupInput } from '@auth/input/signup.input';
+import { SecurityConfig } from '@common/config/config.interface';
 import {
   BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async save(userData: SignupInput): Promise<User> {
     const duplicatedUser = await this.prisma.user.findUnique({
@@ -26,6 +32,21 @@ export class UserService {
     const savedUser = await this.prisma.user.create({
       data: {
         ...userData,
+      },
+    });
+
+    return savedUser;
+  }
+
+  async updatePassword(userData: InitPasswordInput): Promise<User> {
+    const initPassword = this.configService.get('INIT_PASSWORD');
+
+    const savedUser = await this.prisma.user.update({
+      where: {
+        username: userData.username,
+      },
+      data: {
+        password: initPassword,
       },
     });
 
@@ -66,6 +87,14 @@ export class UserService {
     await this.prisma.user.delete({
       where: {
         id: id,
+      },
+    });
+  }
+
+  async deleteOneByPhoneNum(userName: string): Promise<void> {
+    await this.prisma.user.delete({
+      where: {
+        username: userName,
       },
     });
   }

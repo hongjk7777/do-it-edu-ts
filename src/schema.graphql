@@ -30,15 +30,15 @@ type Course {
 }
 
 input CreateCourseInput {
+  id: Int
   name: String!
 }
 
 input CreateExamInput {
-  commonRound: Int
   courseId: Int!
-  maxScores: [Float!]!
-  round: Int!
-  scoreRule: [String!]!
+  isCommonRound: Boolean!
+  maxScores: [Float!]! = [0, 0, 0]
+  scoreRule: [String!]! = ["", "", ""]
 }
 
 input CreateExamStudentInput {
@@ -127,6 +127,10 @@ type ExamStudentScore {
   updatedAt: DateTime!
 }
 
+input InitPasswordInput {
+  username: String!
+}
+
 """
 A field whose value is a JSON Web Token (JWT): https://jwt.io/introduction.
 """
@@ -148,9 +152,12 @@ type Mutation {
   deleteExamsStudentByExamId(examId: Int!): Boolean!
   deleteStudent(id: Int!): Boolean!
   deleteStudentsByCourseId(id: Int!): Boolean!
+  initPassword(data: InitPasswordInput!): User!
   login(data: LoginInput!): Token!
   refreshToken(token: JWT!): Token!
   signup(data: SignupInput!): Auth!
+  updateCourse(data: CreateCourseInput!): Course!
+  updateStudent(data: UpdateStudentInput!): Student!
 }
 
 type Query {
@@ -207,6 +214,14 @@ type Token {
 
   """JWT refresh token"""
   refreshToken: JWT!
+}
+
+input UpdateStudentInput {
+  courseId: Int!
+  id: Int!
+  name: String!
+  phoneNum: String!
+  school: String!
 }
 
 type User {

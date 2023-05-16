@@ -46,12 +46,15 @@ jobs:
           echo "DATABASE_URL=$DATABASE_URL" >> .env
           echo "JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET" >> env/.production.env
           echo "JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET" >> env/.production.env
+          echo "INIT_PASSWORD=$INIT_PASSWORD" >> .env
+          echo "INIT_PASSWORD=$INIT_PASSWORD" >> env/.production.env
           echo "REDIS_URL=$REDIS_URL" >> env/.production.env
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
           JWT_REFRESH_SECRET: ${{ secrets.JWT_REFRESH_SECRET }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
+          INIT_PASSWORD: ${{secrets.INIT_PASSWORD}}
           NODE_ENV: production
 
       - name: Cache node modules
@@ -103,7 +106,8 @@ jobs:
           echo "JWT_ACCESS_SECRET=$JWT_ACCESS_SECRET" >> env/.prod.env
           echo "JWT_REFRESH_SECRET=$JWT_REFRESH_SECRET" >> env/.prod.env
           echo "PORT=$PORT" >> env/.prod.env
-          echo "REDIS_URL=$REDIS_URL" >> env/.prod.env
+          echo "INIT_PASSWORD=$INIT_PASSWORD" >> ./.env
+          echo "INIT_PASSWORD=$INIT_PASSWORD" >> env/.prod.env
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_ACCESS_SECRET: ${{ secrets.JWT_ACCESS_SECRET }}
@@ -111,6 +115,7 @@ jobs:
           REDIS_URL: ${{ secrets.REDIS_URL }}
           PORT: ${{ secrets.PORT }}
           NODE_ENV: prod
+          INIT_PASSWORD: ${{secrets.INIT_PASSWORD}}
 
       - name: Login to DockerHub
         uses: docker/login-action@v1

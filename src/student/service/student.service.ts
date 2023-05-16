@@ -1,20 +1,25 @@
+import { SignupInput } from '@auth/input/signup.input';
+import { AuthService } from '@auth/service/auth.service';
+import { PasswordService } from '@auth/service/password-service.service';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Student } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { Student, User } from '@prisma/client';
+import { UpdateStudentInput } from '@student/dto/update-student.input';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateStudentInput } from '../dto/create-student.input';
 
 @Injectable()
 export class StudentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private authService: AuthService,
+  ) {}
 
-  async save(
-    studentDatas: CreateStudentInput,
-    userId: number,
-  ): Promise<Student> {
+  async save(studentDatas: CreateStudentInput): Promise<Student> {
     const findStudent = await this.prisma.student.findUnique({
       where: {
         phoneNum: studentDatas.phoneNum,
@@ -25,7 +30,17 @@ export class StudentService {
       throw new BadRequestException('동일한 학생이 존재합니다.');
     }
 
-    const savedStudent = await this.prisma.student.create({
+    const user = await this.authService.signUpStudent(
+      new SignupInput(studentDatas.phoneNum, ''),
+    );
+
+    const savedStudent = await this.saveStudent(studentDatas, user);
+
+    return savedStudent;
+  }
+
+  private async saveStudent(studentDatas: CreateStudentInput, user: User) {
+    return await this.prisma.student.create({
       data: {
         name: studentDatas.name,
         phoneNum: studentDatas.phoneNum,
@@ -34,17 +49,38 @@ export class StudentService {
             id: studentDatas.courseId,
           },
         },
-        school: studentDatas.school,
-        // ...studentDatas,
         user: {
           connect: {
-            id: userId,
+            id: user.id,
+          },
+        },
+        school: studentDatas.school,
+      },
+    });
+  }
+
+  async update(studentDatas: UpdateStudentInput): Promise<Student> {
+    const updateStudent = await this.prisma.student.update({
+      where: {
+        id: studentDatas.id,
+      },
+      data: {
+        name: studentDatas.name,
+        phoneNum: studentDatas.phoneNum,
+        school: studentDatas.school,
+        course: {
+          connect: {
+            id: studentDatas.courseId,
           },
         },
       },
     });
 
-    return savedStudent;
+    if (!updateStudent) {
+      throw new NotFoundException('해당하는 학생이 존재하지 않습니다.');
+    }
+
+    return updateStudent;
   }
 
   async findAllByCourseId(courseId: number): Promise<Student[]> {

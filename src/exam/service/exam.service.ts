@@ -26,25 +26,58 @@ export class ExamService {
     return savedExam;
   }
 
+  private async getCurRound(courseId: number) {
+    const exam = await this.prisma.exam.findFirst({
+      where: {
+        courseId: courseId,
+      },
+      orderBy: {
+        round: 'desc',
+      },
+    });
+
+    if (!exam) {
+      return 0;
+    }
+
+    return exam.round;
+  }
+
+  private async getCurCommonRound(courseId: number) {
+    const exam = await this.prisma.exam.findFirst({
+      where: {
+        courseId: courseId,
+      },
+      orderBy: {
+        commonRound: 'desc',
+      },
+    });
+
+    if (!exam) {
+      return 0;
+    }
+
+    return exam.commonRound;
+  }
+
   private async upsertExam(
     examDatas: CreateExamInput,
     examScoreList: CreateExamScoreInput[],
     examScoreRuleList: CreateExamScoreRuleInput[],
   ) {
-    const upsertedExam = await this.prisma.exam.upsert({
-      where: {
-        round_courseId: {
-          round: examDatas.round,
-          courseId: examDatas.courseId,
+    const nextRound = (await this.getCurRound(examDatas.courseId)) + 1;
+    const nextCommonRound =
+      (await this.getCurCommonRound(examDatas.courseId)) + 1;
+
+    const savedExam = await this.prisma.exam.create({
+      data: {
+        round: nextRound,
+        commonRound: examDatas.isCommonRound ? nextCommonRound : 0,
+        course: {
+          connect: {
+            id: examDatas.courseId,
+          },
         },
-      },
-      update: {
-        commonRound: examDatas.commonRound,
-      },
-      create: {
-        round: examDatas.round,
-        commonRound: examDatas.commonRound,
-        courseId: examDatas.courseId,
         examScore: {
           create: examScoreList,
         },
@@ -53,12 +86,34 @@ export class ExamService {
         },
       },
     });
+    // const upsertedExam = await this.prisma.exam.upsert({
+    //   where: {
+    //     round_courseId: {
+    //       round: nextRound,
+    //       courseId: examDatas.courseId,
+    //     },
+    //   },
+    //   update: {
+    //     commonRound: examDatas.commonRound,
+    //   },
+    //   create: {
+    //     round: examDatas.round,
+    //     commonRound: examDatas.commonRound,
+    //     courseId: examDatas.courseId,
+    //     examScore: {
+    //       create: examScoreList,
+    //     },
+    //     scoreRule: {
+    //       create: examScoreRuleList,
+    //     },
+    //   },
+    // });
 
-    if (!upsertedExam) {
+    if (!savedExam) {
       throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
     }
 
-    return upsertedExam;
+    return savedExam;
   }
 
   private async upsertExamScore(

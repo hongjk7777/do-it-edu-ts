@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { UserService } from '@user/service/user.service';
 import UserInfo from '../dto/user-info.dto';
 import { SignupInput } from '../input/signup.input';
@@ -11,6 +12,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly passwordService: PasswordService,
     private readonly tokenService: TokenService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(userId: number): Promise<UserInfo> {
@@ -49,5 +51,20 @@ export class AuthService {
     return await this.tokenService.generateTokens({
       userId: savedUser.id.toString(),
     });
+  }
+
+  async signUpStudent(userData: SignupInput) {
+    const initPassword = this.configService.get('INIT_PASSWORD');
+    console.log(initPassword);
+
+    const hashedPassword = await this.passwordService.hashPassword(
+      initPassword,
+    );
+
+    const user = SignupInput.of(userData.username, hashedPassword);
+
+    const savedUser = await this.userService.save(user);
+
+    return savedUser;
   }
 }
