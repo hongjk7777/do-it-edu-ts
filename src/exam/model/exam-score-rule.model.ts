@@ -4,7 +4,10 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class ExamScoreRule extends BaseModel {
   @Field(() => Int)
-  problemNumber: number;
+  examScoreId: number;
+
+  @Field(() => Int)
+  subProblemNumber: number;
 
   @Field(() => String)
   scoreRule: string;

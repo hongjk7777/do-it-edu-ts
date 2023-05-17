@@ -5,6 +5,8 @@ import { Exam as ExamModel } from '@exam/model/exam.model';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
 import { CreateExamInput } from '../dto/create-exam.input';
+import { UpsertScoreRuleInput } from '@exam/dto/update-exam-info.input';
+import { UpdateExamScoreInput } from '@exam/dto/update-exam-score.input';
 
 @Injectable()
 export class ExamService {
@@ -12,16 +14,12 @@ export class ExamService {
 
   async save(examDatas: CreateExamInput): Promise<Exam> {
     const examScoreList = this.createExamScoreList(examDatas);
-    const examScoreRuleList = this.createExamScoreRuleList(examDatas);
+    // const examScoreRuleList = this.createExamScoreRuleList(examDatas);
 
-    const savedExam = await this.upsertExam(
-      examDatas,
-      examScoreList,
-      examScoreRuleList,
-    );
+    const savedExam = await this.upsertExam(examDatas, examScoreList);
 
     await this.upsertExamScore(examScoreList, savedExam);
-    await this.upsertExamScoreRule(examScoreRuleList, savedExam);
+    // await this.upsertExamScoreRule(examScoreRuleList, savedExam);
 
     return savedExam;
   }
@@ -63,7 +61,6 @@ export class ExamService {
   private async upsertExam(
     examDatas: CreateExamInput,
     examScoreList: CreateExamScoreInput[],
-    examScoreRuleList: CreateExamScoreRuleInput[],
   ) {
     const nextRound = (await this.getCurRound(examDatas.courseId)) + 1;
     const nextCommonRound =
@@ -81,33 +78,8 @@ export class ExamService {
         examScore: {
           create: examScoreList,
         },
-        scoreRule: {
-          create: examScoreRuleList,
-        },
       },
     });
-    // const upsertedExam = await this.prisma.exam.upsert({
-    //   where: {
-    //     round_courseId: {
-    //       round: nextRound,
-    //       courseId: examDatas.courseId,
-    //     },
-    //   },
-    //   update: {
-    //     commonRound: examDatas.commonRound,
-    //   },
-    //   create: {
-    //     round: examDatas.round,
-    //     commonRound: examDatas.commonRound,
-    //     courseId: examDatas.courseId,
-    //     examScore: {
-    //       create: examScoreList,
-    //     },
-    //     scoreRule: {
-    //       create: examScoreRuleList,
-    //     },
-    //   },
-    // });
 
     if (!savedExam) {
       throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
@@ -116,7 +88,7 @@ export class ExamService {
     return savedExam;
   }
 
-  private async upsertExamScore(
+  async upsertExamScore(
     examScoreList: CreateExamScoreInput[],
     savedExam: Exam,
   ) {
@@ -149,37 +121,90 @@ export class ExamService {
     }
   }
 
-  private async upsertExamScoreRule(
-    examScoreRuleList: CreateExamScoreRuleInput[],
-    savedExam: Exam,
-  ) {
-    for (const examScoreRule of examScoreRuleList) {
-      const upesertedExamScoreRule = await this.prisma.examScoreRule.upsert({
+  async updateExamScore(updateExamScoreInput: UpdateExamScoreInput) {
+    const scoreList = updateExamScoreInput.scoreList;
+    const updateScoreList = [];
+
+    for (let index = 0; index < scoreList.length; index++) {
+      const score = scoreList[index];
+
+      const examScore = await this.prisma.examScore.update({
         where: {
           examId_problemNumber: {
-            examId: savedExam.id,
-            problemNumber: examScoreRule.problemNumber,
+            examId: updateExamScoreInput.examId,
+            problemNumber: index + 1,
+          },
+        },
+        data: {
+          maxScore: score,
+        },
+      });
+
+      if (!examScore) {
+        throw new NotFoundException('해당하는 시험 문제를 찾지 못했습니다.');
+      }
+
+      updateScoreList.push(examScore);
+    }
+
+    return updateScoreList;
+  }
+
+  async upsertExamScoreRule(upsertScoreRuleInput: UpsertScoreRuleInput) {
+    const scoreRuleList = upsertScoreRuleInput.scoreRuleList;
+    const updateScoreRuleList = [];
+
+    const examScore = await this.findExamScore(upsertScoreRuleInput);
+
+    for (let index = 0; index < scoreRuleList.length; index++) {
+      const scoreRule = scoreRuleList[index];
+
+      const upesertedScoreRule = await this.prisma.examScoreRule.upsert({
+        where: {
+          examScoreId_subProblemNumber: {
+            examScoreId: examScore.id,
+            subProblemNumber: index + 1,
           },
         },
         update: {
-          problemNumber: examScoreRule.problemNumber,
-          scoreRule: examScoreRule.scoreRule,
+          scoreRule: scoreRule,
         },
         create: {
-          problemNumber: examScoreRule.problemNumber,
-          scoreRule: examScoreRule.scoreRule,
-          exam: {
+          subProblemNumber: index + 1,
+          scoreRule: scoreRule,
+          examScore: {
             connect: {
-              id: savedExam.id,
+              id: examScore.id,
             },
           },
         },
       });
 
-      if (!upesertedExamScoreRule) {
+      if (!upesertedScoreRule) {
         throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
       }
+
+      updateScoreRuleList.push(upesertedScoreRule);
     }
+
+    return updateScoreRuleList;
+  }
+
+  private async findExamScore(upsertScoreRuleInput: UpsertScoreRuleInput) {
+    const examScore = await this.prisma.examScore.findUnique({
+      where: {
+        examId_problemNumber: {
+          examId: upsertScoreRuleInput.examId,
+          problemNumber: upsertScoreRuleInput.problemNumber,
+        },
+      },
+    });
+
+    if (!examScore) {
+      throw new NotFoundException('존재하지 않는 시험입니다.');
+    }
+
+    return examScore;
   }
 
   private createExamScoreList(
@@ -193,19 +218,6 @@ export class ExamService {
     }
 
     return examScoreList;
-  }
-
-  private createExamScoreRuleList(
-    examDatas: CreateExamInput,
-  ): CreateExamScoreRuleInput[] {
-    const examScoreRuleList = [];
-
-    for (const [index, scoreRule] of examDatas.scoreRule.entries()) {
-      const examScoreRule = new CreateExamScoreRuleInput(index + 1, scoreRule);
-      examScoreRuleList.push(examScoreRule);
-    }
-
-    return examScoreRuleList;
   }
 
   async findAllByCourseId(courseId: number): Promise<Exam[]> {
@@ -283,13 +295,6 @@ export class ExamService {
         },
         include: {
           examScore: {
-            orderBy: [
-              {
-                problemNumber: 'asc',
-              },
-            ],
-          },
-          scoreRule: {
             orderBy: [
               {
                 problemNumber: 'asc',

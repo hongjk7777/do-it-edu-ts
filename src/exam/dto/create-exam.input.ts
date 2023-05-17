@@ -17,10 +17,6 @@ export class CreateExamInput {
   @Min(1)
   courseId: number;
 
-  @Field(() => [String])
-  @IsOptional()
-  scoreRule: string[] = ['', '', ''];
-
   @Field(() => [Float])
   @IsOptional()
   maxScores: number[] = [0, 0, 0];

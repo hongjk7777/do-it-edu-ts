@@ -38,7 +38,6 @@ input CreateExamInput {
   courseId: Int!
   isCommonRound: Boolean!
   maxScores: [Float!]! = [0, 0, 0]
-  scoreRule: [String!]! = ["", "", ""]
 }
 
 input CreateExamStudentInput {
@@ -71,7 +70,6 @@ type Exam {
   examScore: [ExamScore!]!
   id: ID!
   round: Int!
-  scoreRule: [ExamScoreRule!]!
   standardDeviation: Float!
   topScore: Float!
   totalTester: Int!
@@ -94,9 +92,10 @@ type ExamScore {
 type ExamScoreRule {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  examScoreId: Int!
   id: ID!
-  problemNumber: Int!
   scoreRule: String!
+  subProblemNumber: Int!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -157,7 +156,9 @@ type Mutation {
   refreshToken(token: JWT!): Token!
   signup(data: SignupInput!): Auth!
   updateCourse(data: CreateCourseInput!): Course!
+  updateExamScore(data: UpdateExamScoreInput!): [ExamScore!]!
   updateStudent(data: UpdateStudentInput!): Student!
+  upsertExamScoreRule(data: UpsertScoreRuleInput!): [ExamScoreRule!]!
 }
 
 type Query {
@@ -216,12 +217,23 @@ type Token {
   refreshToken: JWT!
 }
 
+input UpdateExamScoreInput {
+  examId: Int!
+  scoreList: [Float!]!
+}
+
 input UpdateStudentInput {
   courseId: Int!
   id: Int!
   name: String!
   phoneNum: String!
   school: String!
+}
+
+input UpsertScoreRuleInput {
+  examId: Int!
+  problemNumber: Int!
+  scoreRuleList: [String!]! = ["", "", ""]
 }
 
 type User {
