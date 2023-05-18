@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
 import { ExamStudentService } from './exam-student.service';
@@ -28,7 +28,7 @@ describe('ExamStudentService', () => {
 
       await expect(
         examStudentService.findOneByExamIdAndStudentId(0, 0),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

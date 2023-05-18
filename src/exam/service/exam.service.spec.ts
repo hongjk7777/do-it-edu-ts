@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'nestjs-prisma';
 import { ExamService } from './exam.service';
@@ -25,7 +25,7 @@ describe('ExamService', () => {
       jest.spyOn(prismaService.exam, 'findFirst').mockResolvedValue(null);
 
       await expect(examService.findByRoundAndCourseId(0, 0)).rejects.toThrow(
-        BadRequestException,
+        NotFoundException,
       );
     });
   });
