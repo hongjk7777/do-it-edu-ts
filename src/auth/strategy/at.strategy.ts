@@ -1,3 +1,4 @@
+import UserInfo from '@auth/dto/user-info.dto';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
@@ -17,7 +18,7 @@ export class AtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtDto) {
+  async validate(payload: JwtDto): Promise<UserInfo> {
     const userInfo = await this.authService.validateUser(payload.userId);
 
     if (!userInfo) {

@@ -255,6 +255,10 @@ export class ExamService {
       },
     });
 
+    if (findExam === null) {
+      throw new NotFoundException('해당하는 시험이 존재하지 않습니다.');
+    }
+
     return findExam;
   }
 
