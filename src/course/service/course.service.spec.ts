@@ -1,5 +1,5 @@
 import { CreateCourseInput } from '@course/dto/create-course.input';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Course } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
@@ -39,7 +39,7 @@ describe('CourseService', () => {
       jest.spyOn(prismaService.course, 'findUnique').mockResolvedValue(null);
 
       await expect(courseService.findOneById(1)).rejects.toThrow(
-        BadRequestException,
+        NotFoundException,
       );
     });
   });

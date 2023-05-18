@@ -7,7 +7,11 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'nestjs-prisma';
 import { CacheModule } from '@nestjs/cache-manager';
 import { UserService } from '@user/service/user.service';
-import { BadRequestException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Token } from '@auth/domain/token.model';
 import { User } from '@prisma/client';
 import { SignupInput } from '@auth/input/signup.input';
@@ -45,7 +49,7 @@ describe('AuthService', () => {
       jest.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null);
 
       await expect(authService.validateUser(0)).rejects.toThrow(
-        BadRequestException,
+        NotFoundException,
       );
     });
   });
@@ -74,7 +78,7 @@ describe('AuthService', () => {
 
       await expect(
         authService.signUp(new SignupInput('test', 'password')),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(ConflictException);
     });
   });
 });

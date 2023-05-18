@@ -49,7 +49,7 @@ describe('StudentService', () => {
         .mockResolvedValue(student as Student);
 
       await expect(
-        studentService.save({ name: 'testStudent' } as CreateStudentInput, 1),
+        studentService.save({ name: 'testStudent' } as CreateStudentInput),
       ).rejects.toThrow(BadRequestException);
     });
   });
