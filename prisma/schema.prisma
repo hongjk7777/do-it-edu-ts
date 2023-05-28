@@ -65,6 +65,7 @@ model Exam {
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
   course     Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "exam_ibfk_1")
   examScore ExamScore[]
+  scoreRule ExamScoreRule[]
   examStduent ExamStudent[]
 
   @@unique([round, courseId])
@@ -78,21 +79,20 @@ model ExamScore {
   createdAt DateTime  @default(now()) @db.Timestamp(0)
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
   exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_score_ibfk_1")
-  scoreRule ExamScoreRule[]
 
   @@unique([examId, problemNumber])
 }
 
 model ExamScoreRule {
   id        Int       @id @default(autoincrement()) @db.UnsignedInt
-  examScoreId   Int   @db.UnsignedInt 
-  subProblemNumber Int   @db.UnsignedInt
+  examId    Int       @db.UnsignedInt 
+  problemNumber Int   @db.UnsignedInt
   scoreRule  String   @db.VarChar(5000)
   createdAt DateTime  @default(now()) @db.Timestamp(0)
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
-  examScore      ExamScore      @relation(fields: [examScoreId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_score_rule_ibfk_1")
+  exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_score_ibfk_2")
 
-  @@unique([examScoreId, subProblemNumber])
+  @@unique([examId, problemNumber])
 }
 
 model ExamStudent {

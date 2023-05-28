@@ -20,8 +20,8 @@ export class Exam extends BaseModel {
   @Field(() => Float)
   standardDeviation: number;
 
-  // @Field(() => [ExamScoreRule])
-  // scoreRule: ExamScoreRule[];
+  @Field(() => [ExamScoreRule])
+  scoreRule: ExamScoreRule[];
 
   @Field(() => Float)
   topScore: number;
