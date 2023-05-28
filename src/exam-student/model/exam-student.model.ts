@@ -10,6 +10,12 @@ export class ExamStudent extends BaseModel {
   @Field(() => ID)
   studentId: number;
 
+  @Field(() => String)
+  name: string;
+
+  @Field(() => String)
+  phoneNum: string;
+
   @Field()
   seoulDept?: string;
 

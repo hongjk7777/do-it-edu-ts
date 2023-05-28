@@ -136,6 +136,7 @@ export class ExamStudentService {
       },
       include: {
         examStudentScore: true,
+        student: true,
       },
     });
 
@@ -149,6 +150,7 @@ export class ExamStudentService {
       },
       include: {
         examStudentScore: true,
+        student: true,
       },
     });
 
@@ -162,6 +164,7 @@ export class ExamStudentService {
       },
       include: {
         examStudentScore: true,
+        student: true,
       },
     });
 
@@ -175,6 +178,7 @@ export class ExamStudentService {
       },
       include: {
         examStudentScore: true,
+        student: true,
       },
     });
 

@@ -1,12 +1,10 @@
 import { SignupInput } from '@auth/input/signup.input';
 import { AuthService } from '@auth/service/auth.service';
-import { PasswordService } from '@auth/service/password-service.service';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { Student, User } from '@prisma/client';
 import { UpdateStudentInput } from '@student/dto/update-student.input';
 import { PrismaService } from 'nestjs-prisma';

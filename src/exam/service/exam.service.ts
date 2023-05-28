@@ -1,7 +1,10 @@
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Exam } from '@prisma/client';
-import { Exam as ExamModel } from '@exam/model/exam.model';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
 import { CreateExamInput } from '../dto/create-exam.input';

@@ -1,8 +1,6 @@
 import { InitPasswordInput } from '@auth/input/init-password.input';
 import { SignupInput } from '@auth/input/signup.input';
-import { SecurityConfig } from '@common/config/config.interface';
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
