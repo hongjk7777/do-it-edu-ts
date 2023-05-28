@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Exam } from '@prisma/client';
-import { Exam as ExamModel } from '@exam/model/exam.model';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
 import { CreateExamInput } from '../dto/create-exam.input';
