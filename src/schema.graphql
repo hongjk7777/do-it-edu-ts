@@ -109,6 +109,7 @@ type ExamStudent {
   examStudentScore: [ExamStudentScore!]!
   id: ID!
   seoulDept: String!
+  student: Student!
   studentId: ID!
 
   """Identifies the date and time when the object was last updated."""
