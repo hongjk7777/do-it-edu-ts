@@ -1,10 +1,11 @@
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
+import { DeleteExamScoreRuleInput } from '@exam/dto/delete-exam-score-rule.input';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Exam } from '@prisma/client';
+import { Exam, ExamScoreRule } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
 import { CreateExamInput } from '../dto/create-exam.input';
@@ -17,14 +18,10 @@ export class ExamService {
     const examScoreList = this.createExamScoreList(examDatas);
     const examScoreRuleList = this.createExamScoreRuleList(examDatas);
 
-    const savedExam = await this.upsertExam(
-      examDatas,
-      examScoreList,
-      examScoreRuleList,
-    );
+    const savedExam = await this.upsertExam(examDatas, examScoreList);
 
     await this.upsertExamScore(examScoreList, savedExam);
-    await this.upsertExamScoreRule(examScoreRuleList, savedExam);
+    await this.upsertExamScoreRuleList(examScoreRuleList, savedExam.id);
 
     return savedExam;
   }
@@ -66,7 +63,6 @@ export class ExamService {
   private async upsertExam(
     examDatas: CreateExamInput,
     examScoreList: CreateExamScoreInput[],
-    examScoreRuleList: CreateExamScoreRuleInput[],
   ) {
     const nextRound = (await this.getCurRound(examDatas.courseId)) + 1;
     const nextCommonRound =
@@ -83,9 +79,6 @@ export class ExamService {
         },
         examScore: {
           create: examScoreList,
-        },
-        scoreRule: {
-          create: examScoreRuleList,
         },
       },
     });
@@ -152,28 +145,43 @@ export class ExamService {
     }
   }
 
-  private async upsertExamScoreRule(
+  private async upsertExamScoreRuleList(
     examScoreRuleList: CreateExamScoreRuleInput[],
-    savedExam: Exam,
+    examId: number,
   ) {
     for (const examScoreRule of examScoreRuleList) {
+      await this.upsertExamScoreRule(examId, examScoreRule);
+    }
+  }
+
+  async upsertExamScoreRule(
+    examId: number,
+    examScoreRule: CreateExamScoreRuleInput,
+  ) {
+    const examScoreRuleList: ExamScoreRule[] = [];
+
+    for (const [index, subScoreRule] of examScoreRule.scoreRule.entries()) {
+      const subProblemNumber = index + 1;
       const upesertedExamScoreRule = await this.prisma.examScoreRule.upsert({
         where: {
-          examId_problemNumber: {
-            examId: savedExam.id,
+          examId_problemNumber_subProblemNumber: {
+            examId: examId,
             problemNumber: examScoreRule.problemNumber,
+            subProblemNumber: subProblemNumber,
           },
         },
         update: {
           problemNumber: examScoreRule.problemNumber,
-          scoreRule: examScoreRule.scoreRule,
+          subProblemNumber: subProblemNumber,
+          scoreRule: subScoreRule,
         },
         create: {
           problemNumber: examScoreRule.problemNumber,
-          scoreRule: examScoreRule.scoreRule,
+          subProblemNumber: subProblemNumber,
+          scoreRule: subScoreRule,
           exam: {
             connect: {
-              id: savedExam.id,
+              id: examId,
             },
           },
         },
@@ -182,7 +190,11 @@ export class ExamService {
       if (!upesertedExamScoreRule) {
         throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
       }
+
+      examScoreRuleList.push(upesertedExamScoreRule);
     }
+
+    return examScoreRuleList;
   }
 
   private createExamScoreList(
@@ -204,7 +216,7 @@ export class ExamService {
     const examScoreRuleList = [];
 
     for (const [index, scoreRule] of examDatas.scoreRule.entries()) {
-      const examScoreRule = new CreateExamScoreRuleInput(index + 1, scoreRule);
+      const examScoreRule = new CreateExamScoreRuleInput(index + 1, ['']);
       examScoreRuleList.push(examScoreRule);
     }
 
@@ -217,6 +229,13 @@ export class ExamService {
       orderBy: [{ round: 'asc' }],
       include: {
         examScore: {
+          orderBy: [
+            {
+              problemNumber: 'asc',
+            },
+          ],
+        },
+        scoreRule: {
           orderBy: [
             {
               problemNumber: 'asc',
@@ -240,6 +259,16 @@ export class ExamService {
           orderBy: [
             {
               problemNumber: 'asc',
+            },
+          ],
+        },
+        scoreRule: {
+          orderBy: [
+            {
+              problemNumber: 'asc',
+            },
+            {
+              subProblemNumber: 'asc',
             },
           ],
         },
@@ -316,5 +345,19 @@ export class ExamService {
     await this.prisma.exam.deleteMany({
       where: { courseId: courseId },
     });
+  }
+
+  async deleteExamScoreRule(data: DeleteExamScoreRuleInput) {
+    await this.prisma.examScoreRule.delete({
+      where: {
+        examId_problemNumber_subProblemNumber: {
+          examId: data.examId,
+          problemNumber: data.problemNumber,
+          subProblemNumber: data.subProblemNumber,
+        },
+      },
+    });
+
+    return true;
   }
 }

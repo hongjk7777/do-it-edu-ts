@@ -6,6 +6,9 @@ export class ExamScoreRule extends BaseModel {
   @Field(() => Int)
   problemNumber: number;
 
+  @Field(() => Int)
+  subProblemNumber: number;
+
   @Field(() => String)
   scoreRule: string;
 }

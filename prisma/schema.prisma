@@ -87,12 +87,13 @@ model ExamScoreRule {
   id        Int       @id @default(autoincrement()) @db.UnsignedInt
   examId    Int       @db.UnsignedInt 
   problemNumber Int   @db.UnsignedInt
+  subProblemNumber Int   @db.UnsignedInt
   scoreRule  String   @db.VarChar(5000)
   createdAt DateTime  @default(now()) @db.Timestamp(0)
   updatedAt DateTime  @default(now()) @db.Timestamp(0)
   exam      Exam      @relation(fields: [examId], references: [id], onDelete: Cascade, onUpdate: Cascade, map: "exam_score_ibfk_2")
 
-  @@unique([examId, problemNumber])
+  @@unique([examId, problemNumber, subProblemNumber])
 }
 
 model ExamStudent {

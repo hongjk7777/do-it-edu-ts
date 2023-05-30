@@ -41,6 +41,12 @@ input CreateExamInput {
   scoreRule: [String!]! = ["", "", ""]
 }
 
+input CreateExamScoreRuleInput {
+  examId: Int!
+  problemNumber: Int!
+  scoreRule: [String!]!
+}
+
 input CreateExamStudentInput {
   examId: Int!
   scores: [Float!]!
@@ -97,6 +103,7 @@ type ExamScoreRule {
   id: ID!
   problemNumber: Int!
   scoreRule: String!
+  subProblemNumber: Int!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -120,6 +127,7 @@ type ExamStudent {
 type ExamStudentScore {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
+  examStudentId: Int!
   id: ID!
   problemNumber: Float!
   problemScore: Float!
@@ -159,6 +167,7 @@ type Mutation {
   signup(data: SignupInput!): Auth!
   updateCourse(data: CreateCourseInput!): Course!
   updateStudent(data: UpdateStudentInput!): Student!
+  upsertExamScoreRule(data: CreateExamScoreRuleInput!): [ExamScoreRule!]!
 }
 
 type Query {
