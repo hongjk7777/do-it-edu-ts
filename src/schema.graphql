@@ -67,6 +67,12 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input DeleteExamScoreRuleInput {
+  examId: Int!
+  problemNumber: Int!
+  subProblemNumber: Int!
+}
+
 type Exam {
   average: Float!
   commonRound: Int
@@ -124,6 +130,19 @@ type ExamStudent {
   yonseiDept: String!
 }
 
+type ExamStudentResponseDto {
+  average: Float!
+  exam: Exam!
+  examStudentScoreList: [ExamStudentScore!]!
+  highestScore: Float!
+  ranking: Int!
+  rankingList: [Int!]!
+  stdDev: Float!
+  studentAmount: Int!
+  subAverageList: [Float!]!
+  subHighestScoreList: [Float!]!
+}
+
 type ExamStudentScore {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -156,6 +175,7 @@ type Mutation {
   createExamStudent(data: CreateExamStudentInput!): ExamStudent!
   createStudent(data: CreateStudentInput!): Student!
   deleteCourse(id: Int!): Boolean!
+  deleteExamScoreRule(data: DeleteExamScoreRuleInput!): [Boolean!]!
   deleteExamStudent(id: Int!): Boolean!
   deleteExams(courseId: Int!): Boolean!
   deleteExamsStudentByExamId(examId: Int!): Boolean!
@@ -181,7 +201,7 @@ type Query {
   getStudentByUserId: Student!
   getStudentExamsByExamId(examId: Int!): [ExamStudent!]!
   getStudentExamsBySeoulDept(seoulDept: String!): [ExamStudent!]!
-  getStudentExamsByStudentId(studentId: Int!): [ExamStudent!]!
+  getStudentExamsByStudentId(studentId: Int!): [ExamStudentResponseDto!]!
   getStudentExamsByYonseiDept(yonseiDept: String!): [ExamStudent!]!
   getStudentsByCourseId(courseId: Int!): [Student!]!
   student(id: Int!): Student!

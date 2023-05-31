@@ -1,5 +1,6 @@
+import { ExamStudentResponseDto } from '@exam-student/dto/exam-student-response.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ExamStudent } from '@prisma/client';
+import { ExamStudent, ExamStudentScore } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamStudentScoreInput } from '../dto/create-exam-student-score.input';
 import { CreateExamStudentInput } from '../dto/create-exam-student.input';
@@ -129,7 +130,7 @@ export class ExamStudentService {
     return findExamStudent;
   }
 
-  async findAllByStudentId(studentId: number): Promise<ExamStudent[]> {
+  async findAllByStudentId(studentId: number) {
     const findExamStudentList = await this.prisma.examStudent.findMany({
       where: {
         studentId: studentId,
@@ -137,13 +138,170 @@ export class ExamStudentService {
       include: {
         examStudentScore: true,
         student: true,
+        exam: {
+          include: {
+            examScore: true,
+          },
+        },
       },
     });
 
-    return findExamStudentList;
+    return await this.addExamData(findExamStudentList);
   }
 
-  async findAllByExamId(examId: number): Promise<ExamStudent[]> {
+  private async addExamData(findExamStudentList) {
+    const examStudentResponseDtoList: ExamStudentResponseDto[] = [];
+
+    for (const examStudent of findExamStudentList) {
+      const examStudentList = await this.findAllByExamId(examStudent.examId);
+
+      const studentAmount = examStudentList.length;
+      const average = this.calcAverage(examStudentList);
+      const subAverageList = this.calcSubAverageList(examStudentList);
+      const variance = this.calcVariance(examStudentList, average);
+      const stdDev = Math.sqrt(variance);
+      const ranking = this.calcRanking(
+        this.calcSum(examStudent.examStudentScore),
+        examStudentList,
+      );
+      const rankingList = this.calcRankingList(examStudentList);
+      const subHighestScoreList = this.calcSubHighestScoreList(examStudentList);
+      const highestScore = examStudentList.reduce(
+        (max, cur) => Math.max(max, this.calcSum(cur.examStudentScore)),
+        0,
+      );
+
+      const examStudentResponseDto = new ExamStudentResponseDto(
+        examStudent.examStudentScore,
+        examStudent.exam,
+        studentAmount,
+        average,
+        stdDev,
+        highestScore,
+        ranking,
+        rankingList,
+        subAverageList,
+        subHighestScoreList,
+      );
+
+      examStudentResponseDtoList.push(examStudentResponseDto);
+    }
+    return examStudentResponseDtoList;
+  }
+
+  private calcRankingList(
+    examStudentList: (ExamStudent & {
+      examStudentScore: ExamStudentScore[];
+    })[],
+  ) {
+    const rankingList = Array(10).fill(0);
+
+    examStudentList.forEach((examStudent) => {
+      const score = this.calcSum(examStudent.examStudentScore);
+
+      const index = Math.floor(score == 50 ? (score - 1) / 5 : score / 5);
+
+      rankingList[index]++;
+    });
+
+    return rankingList;
+  }
+
+  private calcAverage(examStudentList) {
+    const totalSum = examStudentList.reduce(
+      (sum, cur) => sum + this.calcSum(cur.examStudentScore),
+      0,
+    );
+
+    return totalSum / examStudentList.length;
+  }
+
+  private calcSubAverageList(examStudentList) {
+    const subAverageList = [];
+
+    for (const [
+      index,
+      examStudent,
+    ] of examStudentList[0].examStudentScore.entries()) {
+      const sum = examStudentList.reduce(
+        (sum, cur) => sum + cur.examStudentScore[index].problemScore,
+        0,
+      );
+
+      subAverageList.push(sum / examStudentList.length);
+    }
+
+    return subAverageList;
+  }
+
+  calcSubHighestScoreList(
+    examStudentList: (ExamStudent & {
+      examStudentScore: ExamStudentScore[];
+      student: import('.prisma/client').Student;
+    })[],
+  ) {
+    const subHighestScoreList = [];
+
+    for (const [
+      index,
+      examStudent,
+    ] of examStudentList[0].examStudentScore.entries()) {
+      const subHighestScore = examStudentList.reduce(
+        (sum, cur) => Math.max(sum, cur.examStudentScore[index].problemScore),
+        0,
+      );
+
+      subHighestScoreList.push(subHighestScore);
+    }
+
+    return subHighestScoreList;
+  }
+
+  private calcSum(examStudentScoreList: ExamStudentScore[]) {
+    return examStudentScoreList.reduce((sum, cur) => sum + cur.problemScore, 0);
+  }
+
+  private calcVariance(examStudentList, average: number) {
+    const totalSum = examStudentList.reduce(
+      (sum, cur) => sum + (this.calcSum(cur.examStudentScore) - average) ** 2,
+      0,
+    );
+
+    const variance = totalSum / examStudentList.length;
+    return variance;
+  }
+
+  private calcRanking(curScoreSum: number, examStudentList) {
+    examStudentList.sort((a, b) => {
+      return (
+        this.calcSum(b.examStudentScore) - this.calcSum(a.examStudentScore)
+      );
+    });
+
+    const rankingData = examStudentList.reduce(
+      (acc, data, index) => {
+        const scoreSum = this.calcSum(data.examStudentScore);
+
+        if (scoreSum !== acc.lastScore) {
+          acc.sameCount = 0;
+        }
+
+        if (curScoreSum === scoreSum) {
+          acc.ranking = index + 1 - acc.sameCount;
+        }
+
+        acc.sameCount++;
+        acc.lastScore = scoreSum;
+
+        return acc;
+      },
+      { sameCount: 0, lastScore: -1, ranking: 0 },
+    );
+
+    return rankingData.ranking;
+  }
+
+  async findAllByExamId(examId: number) {
     const findExamStudentList = await this.prisma.examStudent.findMany({
       where: {
         examId: examId,
