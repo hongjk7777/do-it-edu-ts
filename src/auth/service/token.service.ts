@@ -79,7 +79,16 @@ export class TokenService {
     //   throw new ForbiddenException('Access Denied');
     // }
     const decode = this.jwtService.decode(refreshToken);
-    const userId = decode['userId'];
+    const userId = parseInt(decode['userId']);
+
+    const findUser = await this.userService.findOneById(userId);
+
+    if (findUser.role == UserRoleEnum.ADMIN) {
+      return await this.generateTokens({
+        userId: userId.toString(),
+        userRole: findUser.role,
+      });
+    }
 
     const savedRt = await this.cacheManager.get(this.REFRESH_KEY + userId);
 
