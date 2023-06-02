@@ -3,7 +3,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
+import { User, UserRoleEnum } from '@prisma/client';
 import { UserService } from '@user/service/user.service';
 import { Cache } from 'cache-manager';
 import { Token } from '../domain/token.model';
@@ -20,7 +20,10 @@ export class TokenService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
-  async generateTokens(payload: { userId: string }): Promise<Token> {
+  async generateTokens(payload: {
+    userId: string;
+    userRole: UserRoleEnum;
+  }): Promise<Token> {
     const securityConfig = this.configService.get<SecurityConfig>('security');
 
     const expiresIn = parseInt(securityConfig.expiresIn.substring(0, 2)) * 60;
@@ -32,6 +35,7 @@ export class TokenService {
       expiresIn: expiresIn,
       refreshToken: this.generateRefreshToken(payload),
       refreshIn: refreshIn,
+      userRole: payload.userRole,
     };
 
     await this.updateTokens(payload, tokens);
@@ -84,7 +88,10 @@ export class TokenService {
       throw new ForbiddenException('Invalid Refresh Token');
     }
 
-    return await this.generateTokens({ userId: userId.toString() });
+    return await this.generateTokens({
+      userId: userId.toString(),
+      userRole: findUser.role,
+    });
   }
 
   async expireTokens(userId: number) {

@@ -31,7 +31,7 @@ describe('LoginInput', () => {
   it('should fail validation with short password', async () => {
     const input = new LoginInput();
     input.username = 'valid_username';
-    input.password = 'short';
+    input.password = 'bad';
     const errors = await validate(input);
     expect(errors).toHaveLength(1);
     expect(errors[0].constraints).toHaveProperty('minLength');

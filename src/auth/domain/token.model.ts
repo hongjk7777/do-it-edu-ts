@@ -14,4 +14,7 @@ export class Token {
 
   @Field(() => Int, { description: 'refresh token expiration time(second)' })
   refreshIn: number;
+
+  @Field(() => String)
+  userRole: string;
 }

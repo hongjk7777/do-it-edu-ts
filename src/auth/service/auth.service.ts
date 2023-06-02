@@ -36,6 +36,7 @@ export class AuthService {
 
     return await this.tokenService.generateTokens({
       userId: findUser.id.toString(),
+      userRole: findUser.role,
     });
   }
 
@@ -50,6 +51,7 @@ export class AuthService {
 
     return await this.tokenService.generateTokens({
       userId: savedUser.id.toString(),
+      userRole: savedUser.role,
     });
   }
 
