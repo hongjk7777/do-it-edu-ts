@@ -1,5 +1,7 @@
+import { ChangePasswordInput } from '@auth/input/change-password.input';
 import { InitPasswordInput } from '@auth/input/init-password.input';
 import { SignupInput } from '@auth/input/signup.input';
+import { PasswordService } from '@auth/service/password-service.service';
 import {
   ConflictException,
   Injectable,
@@ -14,6 +16,7 @@ export class UserService {
   constructor(
     private prisma: PrismaService,
     private readonly configService: ConfigService,
+    private readonly passwordService: PasswordService,
   ) {}
 
   async save(userData: SignupInput): Promise<User> {
@@ -36,15 +39,36 @@ export class UserService {
     return savedUser;
   }
 
-  async updatePassword(userData: InitPasswordInput): Promise<User> {
+  async initPassword(userData: InitPasswordInput): Promise<User> {
     const initPassword = this.configService.get('INIT_PASSWORD');
+    const newPassword = await this.passwordService.hashPassword(initPassword);
 
     const savedUser = await this.prisma.user.update({
       where: {
         username: userData.username,
       },
       data: {
-        password: initPassword,
+        password: newPassword,
+      },
+    });
+
+    return savedUser;
+  }
+
+  async changePassword(
+    changePasswordInput: ChangePasswordInput,
+    userId: number,
+  ): Promise<User> {
+    const newPassword = await this.passwordService.hashPassword(
+      changePasswordInput.newPassword,
+    );
+
+    const savedUser = await this.prisma.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        password: newPassword,
       },
     });
 

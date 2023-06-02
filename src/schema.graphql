@@ -15,6 +15,11 @@ type Auth {
   """JWT refresh token"""
   refreshToken: JWT!
   user: User!
+  userRole: String!
+}
+
+input ChangePasswordInput {
+  newPassword: String!
 }
 
 type Course {
@@ -170,6 +175,7 @@ input LoginInput {
 }
 
 type Mutation {
+  changePassowrd(data: ChangePasswordInput!): User!
   createCourse(data: CreateCourseInput!): Course!
   createExam(data: CreateExamInput!): Exam!
   createExamStudent(data: CreateExamStudentInput!): ExamStudent!
@@ -244,6 +250,7 @@ type Token {
 
   """JWT refresh token"""
   refreshToken: JWT!
+  userRole: String!
 }
 
 input UpdateStudentInput {

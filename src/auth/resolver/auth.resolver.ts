@@ -1,4 +1,6 @@
+import { ChangePasswordInput } from '@auth/input/change-password.input';
 import { InitPasswordInput } from '@auth/input/init-password.input';
+import { CurrentUserId } from '@common/decorator/current-user-id.decorator';
 import { Public } from '@common/decorator/public.decorator';
 import {
   Resolver,
@@ -37,7 +39,7 @@ export class AuthResolver {
 
   @Mutation(() => User)
   async initPassword(@Args('data') data: InitPasswordInput) {
-    const user = await this.userService.updatePassword(data);
+    const user = await this.userService.initPassword(data);
     console.log(user);
     console.log(user);
     console.log(user);
@@ -62,5 +64,15 @@ export class AuthResolver {
   @ResolveField('user', () => User)
   async user(@Parent() auth: Auth) {
     return await this.tokenService.getUserFromToken(auth.accessToken);
+  }
+
+  @Mutation(() => User)
+  async changePassowrd(
+    @CurrentUserId() userId: number,
+    @Args('data') chnagePasswordInput: ChangePasswordInput,
+  ) {
+    console.log(userId);
+
+    return await this.userService.changePassword(chnagePasswordInput, userId);
   }
 }
