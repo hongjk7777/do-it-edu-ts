@@ -193,6 +193,7 @@ type Mutation {
   signup(data: SignupInput!): Auth!
   updateCourse(data: CreateCourseInput!): Course!
   updateStudent(data: UpdateStudentInput!): Student!
+  uploadExcel(file: Upload!): Boolean!
   upsertExamScoreRule(data: CreateExamScoreRuleInput!): [ExamScoreRule!]!
 }
 
@@ -260,6 +261,9 @@ input UpdateStudentInput {
   phoneNum: String!
   school: String!
 }
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 type User {
   """Identifies the date and time when the object was created."""
