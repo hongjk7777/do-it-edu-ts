@@ -78,8 +78,8 @@ export class ExamExcelService {
   async createCommonScoreFile(commonRound: number) {
     const workbook = XLSX.utils.book_new();
 
-    await this.#createScoreDataSheet(workbook, commonRound);
-    await this.#createRankingDataSheet(workbook, commonRound);
+    await this.createScoreDataSheet(workbook, commonRound);
+    await this.createRankingDataSheet(workbook, commonRound);
 
     const fileName = `공통 ${commonRound}회차 시험.xlsx`;
 
@@ -92,13 +92,19 @@ export class ExamExcelService {
     //아래는 컨트롤러에 넣기
   }
 
-  async #createScoreDataSheet(workbook: XLSX.WorkBook, commonRound: number) {
+  private async createScoreDataSheet(
+    workbook: XLSX.WorkBook,
+    commonRound: number,
+  ) {
     const scoreDatas = await this.examService.getScoreDatas(commonRound);
     const scoreDistSheet = XLSX.utils.json_to_sheet(scoreDatas);
     XLSX.utils.book_append_sheet(workbook, scoreDistSheet, '성적분포');
   }
 
-  async #createRankingDataSheet(workbook: XLSX.WorkBook, commonRound: number) {
+  private async createRankingDataSheet(
+    workbook: XLSX.WorkBook,
+    commonRound: number,
+  ) {
     const rankingDatas = await this.examService.getRankingDatas(commonRound);
     const originalSheet = XLSX.utils.json_to_sheet(rankingDatas);
     XLSX.utils.book_append_sheet(workbook, originalSheet, '원본');

@@ -278,20 +278,20 @@ export class WorksheetService {
 
     const phoneNumCol = this.getPhoneNumCol(indexRow);
     const phoneNum = this.getPhoneNum(worksheet.getRow(rowNum), phoneNumCol);
-    const student = await this.findOneByStudentInfo(name, phoneNum, courseId);
+    const student = await this.findOneByStudentInfo(name, phoneNum);
 
     //TODO: 여기 뒤에 2개 안 넣어도 되려나
     return student;
   }
 
-  async findOneByStudentInfo(name: string, phoneNum: string, courseId: number) {
+  async findOneByStudentInfo(name: string, phoneNum: string) {
     let student: Student = null;
 
     if (phoneNum == '') {
       return null;
     }
 
-    student = await this.studentService.findOneByPhoneNum(phoneNum, courseId);
+    student = await this.studentService.findOneByPhoneNum(phoneNum);
 
     if (student === null) {
       console.log(phoneNum);

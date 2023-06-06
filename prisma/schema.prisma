@@ -31,7 +31,7 @@ model Student {
   id          Int      @id @default(autoincrement()) @db.UnsignedInt
   userId      Int?     @db.UnsignedInt() @unique
   name        String   @db.VarChar(40)
-  phoneNum    String   @db.VarChar(40)
+  phoneNum    String   @db.VarChar(40) @unique
   courseId    Int      @db.UnsignedInt
   school      String?  @db.VarChar(40)
   createdAt   DateTime @default(now()) @db.Timestamp(0)
@@ -40,7 +40,7 @@ model Student {
   course      Course   @relation(fields: [courseId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "student_ibfk_1")
   examStudent ExamStudent[]
 
-  @@unique([phoneNum, courseId])
+  // @@unique([phoneNum, courseId])
   @@index([courseId], map: "courseId")
 }
 
