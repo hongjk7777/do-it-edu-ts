@@ -64,7 +64,7 @@ input CreateStudentInput {
   courseId: Int!
   name: String!
   phoneNum: String!
-  school: String!
+  school: String! = ""
 }
 
 """
@@ -204,7 +204,7 @@ type Query {
   exam(courseId: Int!, round: Int!): Exam!
   examStudent(examId: Int!, studentId: Int!): ExamStudent!
   exams(courseId: Int!): [Exam!]!
-  getStudentByPhoneNum(phoneNum: String!): Student!
+  getStudentByPhoneNum(courseId: Int!, phoneNum: String!): Student!
   getStudentByUserId: Student!
   getStudentExamsByExamId(examId: Int!): [ExamStudent!]!
   getStudentExamsBySeoulDept(seoulDept: String!): [ExamStudent!]!

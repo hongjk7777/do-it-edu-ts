@@ -26,8 +26,11 @@ export class StudentResolver {
   }
 
   @Query(() => Student)
-  async getStudentByPhoneNum(@Args('phoneNum') phoneNum: string) {
-    return await this.studentService.findOneByPhoneNum(phoneNum);
+  async getStudentByPhoneNum(
+    @Args('phoneNum') phoneNum: string,
+    @Args('courseId') courseId: number,
+  ) {
+    return await this.studentService.findOneByPhoneNum(phoneNum, courseId);
   }
 
   @Query(() => Student)

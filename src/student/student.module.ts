@@ -7,5 +7,6 @@ import { StudentService } from './service/student.service';
 @Module({
   imports: [AuthModule, UserModule],
   providers: [StudentService, StudentResolver],
+  exports: [StudentService],
 })
 export class StudentModule {}

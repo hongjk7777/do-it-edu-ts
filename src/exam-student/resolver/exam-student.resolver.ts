@@ -43,7 +43,7 @@ export class ExamStudentResolver {
   async createExamStudent(
     @Args('data') examStudentDatas: CreateExamStudentInput,
   ) {
-    return await this.examStudentService.save(examStudentDatas);
+    return await this.examStudentService.saveWithScore(examStudentDatas);
   }
 
   @Mutation(() => Boolean)

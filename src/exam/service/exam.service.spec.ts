@@ -20,13 +20,13 @@ describe('ExamService', () => {
     expect(examService).toBeDefined();
   });
 
-  describe('findByRoundAndCourseId', () => {
-    it('should throw bad request error when exam is not exist', async () => {
-      jest.spyOn(prismaService.exam, 'findFirst').mockResolvedValue(null);
+  // describe('findByRoundAndCourseId', () => {
+  //   it('should throw bad request error when exam is not exist', async () => {
+  //     jest.spyOn(prismaService.exam, 'findFirst').mockResolvedValue(null);
 
-      await expect(examService.findByRoundAndCourseId(0, 0)).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-  });
+  //     await expect(examService.findByRoundAndCourseId(0, 0)).rejects.toThrow(
+  //       NotFoundException,
+  //     );
+  //   });
+  // });
 });

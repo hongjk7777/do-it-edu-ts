@@ -44,6 +44,7 @@
     "cache-manager-redis-store": "^3.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "exceljs": "^4.3.0",
     "graphql": "^16.6.0",
     "graphql-scalars": "^1.21.3",
     "graphql-upload": "^16.0.2",
@@ -55,7 +56,8 @@
     "passport-local": "^1.0.0",
     "pm2": "^5.3.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rxjs": "^7.2.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

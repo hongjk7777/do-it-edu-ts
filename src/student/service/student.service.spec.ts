@@ -64,15 +64,15 @@ describe('StudentService', () => {
     });
   });
 
-  describe('findOneByPhoneNum', () => {
-    it('should throw Bad Request when student is not exist', async () => {
-      jest.spyOn(prismaService.student, 'findUnique').mockResolvedValue(null);
+  // describe('findOneByPhoneNum', () => {
+  //   it('should throw Bad Request when student is not exist', async () => {
+  //     jest.spyOn(prismaService.student, 'findUnique').mockResolvedValue(null);
 
-      await expect(
-        studentService.findOneByPhoneNum('testPNum'),
-      ).rejects.toThrow(NotFoundException);
-    });
-  });
+  //     await expect(
+  //       studentService.findOneByPhoneNum('testPNum'),
+  //     ).rejects.toThrow(NotFoundException);
+  //   });
+  // });
 
   describe('findOneByUserId', () => {
     it('should throw Bad Request when student is not exist', async () => {

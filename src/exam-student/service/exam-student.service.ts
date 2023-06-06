@@ -1,15 +1,29 @@
+import { SignupInput } from '@auth/input/signup.input';
+import { AuthService } from '@auth/service/auth.service';
 import { ExamStudentResponseDto } from '@exam-student/dto/exam-student-response.dto';
+import { ExcelExamStudentDto } from '@exam-student/dto/excel-exam-student.dto';
+import { StudentDeptDto } from '@exam-student/dto/student-dept.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ExamStudent, ExamStudentScore } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { ExamStudent, ExamStudentScore, Student } from '@prisma/client';
+import { CreateStudentInput } from '@student/dto/create-student.input';
+import { StudentService } from '@student/service/student.service';
+import { UserService } from '@user/service/user.service';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamStudentScoreInput } from '../dto/create-exam-student-score.input';
 import { CreateExamStudentInput } from '../dto/create-exam-student.input';
 
 @Injectable()
 export class ExamStudentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private authService: AuthService,
+    private studentService: StudentService,
+  ) {}
 
-  async save(examStudentDatas: CreateExamStudentInput): Promise<ExamStudent> {
+  async saveWithScore(
+    examStudentDatas: CreateExamStudentInput,
+  ): Promise<ExamStudent> {
     const savedExamStudent = await this.upsertExamStudent(examStudentDatas);
 
     const examStudentScoreList = this.createExamStudnetScoreList(
@@ -21,7 +35,45 @@ export class ExamStudentService {
     return savedExamStudent;
   }
 
-  private async upsertExamStudent(examStudentDatas: CreateExamStudentInput) {
+  async saveExcelExamStudent(
+    excelExamStudentDto: ExcelExamStudentDto,
+    courseId: number,
+  ): Promise<Student> {
+    if (excelExamStudentDto.phoneNum == '') {
+      return;
+    }
+
+    let findUser = await this.prisma.user.findUnique({
+      where: {
+        username: excelExamStudentDto.phoneNum,
+      },
+    });
+
+    if (findUser == null) {
+      const newUser = SignupInput.of(excelExamStudentDto.phoneNum, '');
+      findUser = await this.authService.signUpStudent(newUser);
+    }
+
+    const createStudentInput = CreateStudentInput.of(
+      excelExamStudentDto.name,
+      excelExamStudentDto.phoneNum,
+      courseId,
+    );
+    return this.studentService.saveStudent(createStudentInput, findUser);
+  }
+
+  async saveExamStudentList(
+    excelExamStudentDtoList: ExcelExamStudentDto[],
+    courseId: number,
+  ) {
+    const signupPromises = excelExamStudentDtoList.map((student) => {
+      return this.saveExcelExamStudent(student, courseId);
+    });
+
+    await Promise.all(signupPromises);
+  }
+
+  async upsertExamStudent(examStudentDatas: CreateExamStudentInput) {
     const examStudent = await this.prisma.examStudent.upsert({
       where: {
         examId_studentId: {
@@ -329,6 +381,29 @@ export class ExamStudentService {
     return findExamStudentList;
   }
 
+  async updateStudentDept(studentDeptDto: StudentDeptDto) {
+    const examStudent = await this.prisma.examStudent.findUnique({
+      where: {
+        examId_studentId: {
+          examId: studentDeptDto.exam.id,
+          studentId: studentDeptDto.student.id,
+        },
+      },
+    });
+
+    if (examStudent != null) {
+      await this.prisma.examStudent.update({
+        where: {
+          id: examStudent.id,
+        },
+        data: {
+          seoulDept: studentDeptDto.seoulDept,
+          yonseiDept: studentDeptDto.yonseiDept,
+        },
+      });
+    }
+  }
+
   async findAllByYonseiDept(yonseiDept: string): Promise<ExamStudent[]> {
     const findExamStudentList = await this.prisma.examStudent.findMany({
       where: {
@@ -350,6 +425,12 @@ export class ExamStudentService {
   async deleteAllByExamId(examId: number): Promise<void> {
     await this.prisma.examStudent.deleteMany({
       where: { examId: examId },
+    });
+  }
+
+  async deleteAllExamStudentScoreByExamStudentId(examStudentId: number) {
+    await this.prisma.examStudentScore.deleteMany({
+      where: { examStudentId: examStudentId },
     });
   }
 }

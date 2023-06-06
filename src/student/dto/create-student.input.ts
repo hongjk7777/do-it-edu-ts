@@ -17,4 +17,19 @@ export class CreateStudentInput {
 
   @Field()
   school: string;
+
+  constructor(name: string, phoneNum: string, courseId: number) {
+    this.name = name;
+    this.phoneNum = phoneNum;
+    this.courseId = courseId;
+    this.school = '';
+  }
+
+  static of(
+    name: string,
+    phoneNum: string,
+    courseId: number,
+  ): CreateStudentInput {
+    return new CreateStudentInput(name, phoneNum, courseId);
+  }
 }

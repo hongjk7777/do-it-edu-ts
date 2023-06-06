@@ -1,11 +1,13 @@
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
 import { DeleteExamScoreRuleInput } from '@exam/dto/delete-exam-score-rule.input';
+import { ExamStudentScoreDto } from '@exam/dto/exam-student-score.dto';
+import { ExamWithStudent } from '@exam/dto/exam-with-student.interface';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Exam, ExamScoreRule } from '@prisma/client';
+import { Exam, ExamScore, ExamScoreRule } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
 import { CreateExamInput } from '../dto/create-exam.input';
@@ -14,7 +16,27 @@ import { CreateExamInput } from '../dto/create-exam.input';
 export class ExamService {
   constructor(private prisma: PrismaService) {}
 
-  async save(examDatas: CreateExamInput): Promise<Exam> {
+  async save(
+    round: number,
+    commonRound: number,
+    courseId: number,
+  ): Promise<Exam> {
+    const savedExam = await this.prisma.exam.create({
+      data: {
+        round: round,
+        commonRound: commonRound,
+        course: {
+          connect: {
+            id: courseId,
+          },
+        },
+      },
+    });
+
+    return savedExam;
+  }
+
+  async saveExamDatas(examDatas: CreateExamInput): Promise<Exam> {
     const examScoreList = this.createExamScoreList(examDatas);
     const examScoreRuleList = this.createExamScoreRuleList(examDatas);
 
@@ -248,6 +270,15 @@ export class ExamService {
     return findExamList;
   }
 
+  async findByCommonRoundAndCourseId(commonRound: number, courseId: number) {
+    return await this.prisma.exam.findFirst({
+      where: {
+        commonRound: commonRound,
+        courseId: courseId,
+      },
+    });
+  }
+
   async findByRoundAndCourseId(round: number, courseId: number): Promise<Exam> {
     const findExam = await this.prisma.exam.findFirst({
       where: {
@@ -275,29 +306,72 @@ export class ExamService {
       },
     });
 
-    if (findExam === null) {
-      throw new NotFoundException('해당하는 시험이 존재하지 않습니다.');
-    }
-
     return findExam;
   }
 
-  async findAllByCommonRound(commonRound: number): Promise<Exam[]> {
+  async findAllByCommonRound(
+    commonRound: number,
+  ): Promise<ExamStudentScoreDto[]> {
     const findExamList = await this.prisma.exam.findMany({
       where: { commonRound: commonRound },
       orderBy: [{ round: 'asc' }],
       include: {
-        examScore: {
-          orderBy: [
-            {
-              problemNumber: 'asc',
+        examStduent: {
+          include: {
+            student: {
+              include: {
+                course: true,
+              },
             },
-          ],
+            examStudentScore: {
+              select: {
+                problemNumber: true,
+                problemScore: true,
+              },
+              orderBy: [
+                {
+                  problemNumber: 'asc',
+                },
+              ],
+            },
+          },
         },
       },
     });
 
-    return findExamList;
+    const examStudentScoreList: ExamStudentScoreDto[] = [];
+
+    findExamList.forEach((findExam) => {
+      const examStudentList = findExam.examStduent;
+
+      examStudentList.forEach((examStudent) => {
+        let sum = 0;
+        const scoreList = [];
+        examStudent.examStudentScore.forEach((score) => {
+          sum += score.problemScore;
+          scoreList.push(score.problemScore);
+        });
+
+        examStudentScoreList.push(
+          ExamStudentScoreDto.of(
+            examStudent.student,
+            sum,
+            scoreList,
+            examStudent.seoulDept,
+            examStudent.yonseiDept,
+            examStudent.student.course,
+          ),
+        );
+      });
+    });
+
+    return examStudentScoreList;
+  }
+
+  private sortExamList(examList: ExamStudentScoreDto[]) {
+    return examList.sort((a, b) => {
+      return b.sum - a.sum;
+    });
   }
 
   async findAllCommonExams(): Promise<Exam[]> {
@@ -347,6 +421,16 @@ export class ExamService {
     });
   }
 
+  async deleteExamScoreByExamId(examId: number) {
+    await this.prisma.examScore.deleteMany({
+      where: {
+        examId: examId,
+      },
+    });
+
+    return true;
+  }
+
   async deleteExamScoreRule(data: DeleteExamScoreRuleInput) {
     await this.prisma.examScoreRule.delete({
       where: {
@@ -359,5 +443,120 @@ export class ExamService {
     });
 
     return true;
+  }
+
+  async deleteExamScoreRuleByExamId(examId: number) {
+    await this.prisma.examScoreRule.deleteMany({
+      where: {
+        examId: examId,
+      },
+    });
+
+    return true;
+  }
+
+  async getScoreDatas(commonRound: number) {
+    const examList = await this.findAllByCommonRound(commonRound);
+    const sortedExamList = this.sortExamList(examList);
+
+    //TODO: 여기 fp로 바꾸기
+    this.addExtractRanking(sortedExamList);
+    this.addDistribution(sortedExamList);
+
+    const scoreDatas = this.changeToScoreDatas(sortedExamList);
+
+    return scoreDatas;
+  }
+
+  addExtractRanking(examStudentScoreList: ExamStudentScoreDto[]) {
+    let sameCount = 0;
+    let lastScore = -1;
+
+    examStudentScoreList.forEach((examStudentScore, index) => {
+      if (examStudentScore.sum === lastScore) {
+        sameCount++;
+      } else {
+        sameCount = 0;
+      }
+
+      examStudentScore.ranking = index + 1 - sameCount;
+
+      lastScore = examStudentScore.sum;
+    });
+  }
+
+  addDistribution(scoreDatas: ExamStudentScoreDto[]) {
+    const totalPeople = scoreDatas.length;
+
+    scoreDatas.forEach((scoreData) => {
+      const distribution =
+        ((totalPeople - scoreData.ranking) / totalPeople) * 100;
+      scoreData.distribution = distribution.toFixed(1);
+    });
+  }
+
+  changeToScoreDatas(examStudentScoreList: ExamStudentScoreDto[]) {
+    const scoreDatas = [];
+
+    examStudentScoreList.forEach((scoreSumData) => {
+      const scoreData = this.changeToScoreData(scoreSumData);
+
+      scoreDatas.push(scoreData);
+    });
+
+    return scoreDatas;
+  }
+
+  //엑셀에 한국어를 넣기 위해 속성이름을 변경
+  changeToScoreData(scoreSumData: ExamStudentScoreDto) {
+    const scoreData = {};
+
+    scoreData['점수'] = scoreSumData.sum;
+    scoreData['등수'] = scoreSumData.ranking;
+    scoreData['백분위'] = scoreSumData.distribution;
+
+    return scoreData;
+  }
+
+  async getRankingDatas(commonRound: number) {
+    const examStudentScoreList = await this.findAllByCommonRound(commonRound);
+    const sortedExamList = this.sortExamList(examStudentScoreList);
+
+    this.addExtractRanking(sortedExamList);
+
+    // const exportExamDTOs = this.changeToExportExamDTO(examStudentScoreList);
+    const rankingDatas = this.changeToRankingDatas(sortedExamList);
+
+    return rankingDatas;
+  }
+
+  changeToRankingDatas(examStudentScoreList: ExamStudentScoreDto[]) {
+    const rankingDatas = [];
+
+    examStudentScoreList.forEach((examStudentScore, index) => {
+      const rankingData = this.changeToRankingData(examStudentScore, index);
+
+      rankingDatas.push(rankingData);
+    });
+
+    return rankingDatas;
+  }
+
+  changeToRankingData(examStudentScore: ExamStudentScoreDto, index: number) {
+    const rankingData = {};
+
+    rankingData['번호'] = index + 1;
+    rankingData['분반'] = examStudentScore.course.name;
+    rankingData['이름'] = examStudentScore.student.name;
+    rankingData['전화번호'] = examStudentScore.student.phoneNum;
+    rankingData['문제(1)'] = examStudentScore.scoreList[0];
+    rankingData['문제(2)'] = examStudentScore.scoreList[1];
+    rankingData['문제(3)'] = examStudentScore.scoreList[2];
+    rankingData['총합'] = examStudentScore.sum;
+    rankingData['등수'] = examStudentScore.ranking;
+    rankingData['서울대 지원학과'] = examStudentScore.seoulDept;
+    rankingData['연세대 지원학과'] = examStudentScore.yonseiDept;
+
+    return rankingData;
   }
 }

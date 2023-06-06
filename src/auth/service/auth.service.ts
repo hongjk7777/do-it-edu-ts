@@ -57,7 +57,6 @@ export class AuthService {
 
   async signUpStudent(userData: SignupInput) {
     const initPassword = this.configService.get('INIT_PASSWORD');
-    console.log(initPassword);
 
     const hashedPassword = await this.passwordService.hashPassword(
       initPassword,

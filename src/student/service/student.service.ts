@@ -20,7 +20,10 @@ export class StudentService {
   async save(studentDatas: CreateStudentInput): Promise<Student> {
     const findStudent = await this.prisma.student.findUnique({
       where: {
-        phoneNum: studentDatas.phoneNum,
+        phoneNum_courseId: {
+          phoneNum: studentDatas.phoneNum,
+          courseId: studentDatas.courseId,
+        },
       },
     });
 
@@ -37,7 +40,8 @@ export class StudentService {
     return savedStudent;
   }
 
-  private async saveStudent(studentDatas: CreateStudentInput, user: User) {
+  async saveStudent(studentDatas: CreateStudentInput, user: User) {
+    console.log(user.username);
     return await this.prisma.student.create({
       data: {
         name: studentDatas.name,
@@ -105,10 +109,16 @@ export class StudentService {
     return findStudent;
   }
 
-  async findOneByPhoneNum(phoneNum: string): Promise<Student> {
+  async findOneByPhoneNum(
+    phoneNum: string,
+    courseId: number,
+  ): Promise<Student> {
     const findStudent: Student = await this.prisma.student.findUnique({
       where: {
-        phoneNum: phoneNum,
+        phoneNum_courseId: {
+          phoneNum: phoneNum,
+          courseId: courseId,
+        },
       },
     });
 

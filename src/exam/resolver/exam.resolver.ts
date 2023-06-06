@@ -32,7 +32,7 @@ export class ExamResolver {
 
   @Mutation(() => Exam)
   async createExam(@Args('data') data: CreateExamInput) {
-    return await this.examService.save(data);
+    return await this.examService.saveExamDatas(data);
   }
 
   @Mutation(() => Boolean)

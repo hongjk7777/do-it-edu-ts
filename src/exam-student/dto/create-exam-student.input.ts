@@ -22,4 +22,14 @@ export class CreateExamStudentInput {
   @Field(() => [Float])
   @IsNotEmpty()
   scores: number[];
+
+  constructor(examId: number, studentId: number, scores: number[]) {
+    this.examId = examId;
+    this.studnetId = studentId;
+    this.scores = scores;
+  }
+
+  static of(examId: number, studentId: number, scores: number[]) {
+    return new CreateExamStudentInput(examId, studentId, scores);
+  }
 }

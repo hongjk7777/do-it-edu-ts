@@ -40,9 +40,6 @@ export class AuthResolver {
   @Mutation(() => User)
   async initPassword(@Args('data') data: InitPasswordInput) {
     const user = await this.userService.initPassword(data);
-    console.log(user);
-    console.log(user);
-    console.log(user);
 
     return user;
   }
