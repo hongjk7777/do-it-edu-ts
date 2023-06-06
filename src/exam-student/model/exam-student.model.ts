@@ -14,10 +14,10 @@ export class ExamStudent extends BaseModel {
   @Field(() => Student)
   student: Student;
 
-  @Field()
+  @Field(() => String, { nullable: true })
   seoulDept?: string;
 
-  @Field()
+  @Field(() => String, { nullable: true })
   yonseiDept?: string;
 
   @Field(() => [ExamStudentScore])
