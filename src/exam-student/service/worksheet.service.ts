@@ -84,7 +84,6 @@ export class WorksheetService {
 
     indexRow.eachCell((cell, col) => {
       if (this.cellService.isPhoneNumIndexCell(cell)) {
-        console.log(cell.value);
         phoneNumCol = col;
         return;
       }
@@ -278,6 +277,7 @@ export class WorksheetService {
 
     const phoneNumCol = this.getPhoneNumCol(indexRow);
     const phoneNum = this.getPhoneNum(worksheet.getRow(rowNum), phoneNumCol);
+    console.log(name + '' + phoneNum);
     const student = await this.findOneByStudentInfo(name, phoneNum);
 
     //TODO: 여기 뒤에 2개 안 넣어도 되려나
@@ -294,9 +294,6 @@ export class WorksheetService {
     student = await this.studentService.findOneByPhoneNum(phoneNum);
 
     if (student === null) {
-      console.log(phoneNum);
-      console.log(name);
-
       throw new SyntaxError(ExcelErrorMsg.NO_EXISTENT_STUDENT);
     }
 
@@ -352,6 +349,8 @@ export class WorksheetService {
 
       const seoulDept = this.cellService.getStudentDept(seoulDeptCell);
       const yonseiDept = this.cellService.getStudentDept(yonseiDeptCell);
+      console.log(seoulDept);
+      console.log(yonseiDept);
 
       let student: Student;
       let exam: Exam;
@@ -366,6 +365,7 @@ export class WorksheetService {
       }
 
       if (student) {
+        console.log(student.name);
         if (seoulDept || yonseiDept) {
           studentDepts.push(
             new StudentDeptDto(

@@ -87,6 +87,11 @@ export class StudentService {
       where: {
         courseId: courseId,
       },
+      orderBy: [
+        {
+          name: 'asc',
+        },
+      ],
     });
 
     return findStudentList;

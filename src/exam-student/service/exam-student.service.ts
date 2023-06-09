@@ -382,6 +382,10 @@ export class ExamStudentService {
   }
 
   async updateStudentDept(studentDeptDto: StudentDeptDto) {
+    console.log(studentDeptDto.student.name);
+    console.log(studentDeptDto.seoulDept);
+    console.log(studentDeptDto.yonseiDept);
+
     const examStudent = await this.prisma.examStudent.findUnique({
       where: {
         examId_studentId: {

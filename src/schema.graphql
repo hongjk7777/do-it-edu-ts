@@ -126,13 +126,13 @@ type ExamStudent {
   examId: ID!
   examStudentScore: [ExamStudentScore!]!
   id: ID!
-  seoulDept: String!
+  seoulDept: String
   student: Student!
   studentId: ID!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
-  yonseiDept: String!
+  yonseiDept: String
 }
 
 type ExamStudentResponseDto {
