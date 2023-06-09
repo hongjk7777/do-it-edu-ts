@@ -13,7 +13,11 @@ export class CourseService {
   constructor(private prisma: PrismaService) {}
 
   async findAll(): Promise<CourseModel[]> {
-    const findCourseList = await this.prisma.course.findMany({});
+    const findCourseList = await this.prisma.course.findMany({
+      where: {
+        isActive: true,
+      },
+    });
     const courseModelList: CourseModel[] = [];
 
     for (const findCourse of findCourseList) {
@@ -48,6 +52,39 @@ export class CourseService {
     courseModel.examCount = examCount;
 
     return courseModel;
+  }
+
+  async setActiveCourse(date: string) {
+    const availableDate = new Date(date);
+
+    await this.prisma.course.updateMany({
+      where: {
+        createdAt: {
+          lt: availableDate,
+        },
+      },
+      data: {
+        isActive: false,
+      },
+    });
+
+    await this.prisma.course.updateMany({
+      where: {
+        createdAt: {
+          gte: availableDate,
+        },
+      },
+      data: {
+        isActive: true,
+      },
+    });
+
+    await this.prisma.courseConfig.updateMany({
+      where: {},
+      data: {
+        availableDate: availableDate,
+      },
+    });
   }
 
   async save(payload: CreateCourseInput): Promise<Course> {
@@ -103,5 +140,11 @@ export class CourseService {
 
   async deleteById(courseId: number): Promise<void> {
     await this.prisma.course.delete({ where: { id: courseId } });
+  }
+
+  async getAvailableDate() {
+    const courseConfig = await this.prisma.courseConfig.findFirst();
+
+    return courseConfig.availableDate;
   }
 }

@@ -175,6 +175,7 @@ input LoginInput {
 }
 
 type Mutation {
+  changeAvailableDate(date: String!): Boolean!
   changePassowrd(data: ChangePasswordInput!): User!
   createCourse(data: CreateCourseInput!): Course!
   createExam(data: CreateExamInput!): Exam!
@@ -204,6 +205,7 @@ type Query {
   exam(courseId: Int!, round: Int!): Exam!
   examStudent(examId: Int!, studentId: Int!): ExamStudent!
   exams(courseId: Int!): [Exam!]!
+  getAvailableDate: DateTime!
   getStudentByPhoneNum(phoneNum: String!): Student!
   getStudentByUserId: Student!
   getStudentExamsByExamId(examId: Int!): [ExamStudent!]!

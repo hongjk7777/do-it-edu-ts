@@ -27,6 +27,17 @@ export class CourseResolver {
     return await this.courseService.findOneById(courseId);
   }
 
+  @Query(() => Date)
+  async getAvailableDate() {
+    return await this.courseService.getAvailableDate();
+  }
+
+  @Mutation(() => Boolean)
+  async changeAvailableDate(@Args('date') date: string) {
+    await this.courseService.setActiveCourse(date);
+    return true;
+  }
+
   @Mutation(() => Boolean)
   async deleteCourse(@Args('id') courseId: number) {
     await this.courseService.deleteById(courseId);

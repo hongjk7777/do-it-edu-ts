@@ -49,8 +49,14 @@ model Course {
   name       String    @db.VarChar(40)
   createdAt DateTime   @default(now()) @db.Timestamp(0)
   updatedAt DateTime   @default(now()) @db.Timestamp(0)
+  isActive  Boolean    @default(true)
   student    Student[]
   exam      Exam[]
+}
+
+model CourseConfig {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  availableDate DateTime @default(now()) @db.Timestamp(0)
 }
 
 model Exam {
