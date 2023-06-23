@@ -38,7 +38,6 @@ export class StudentService {
   }
 
   async saveStudent(studentDatas: CreateStudentInput, user: User) {
-    console.log(user.username);
     return await this.prisma.student.create({
       data: {
         name: studentDatas.name,

@@ -349,8 +349,6 @@ export class WorksheetService {
 
       const seoulDept = this.cellService.getStudentDept(seoulDeptCell);
       const yonseiDept = this.cellService.getStudentDept(yonseiDeptCell);
-      console.log(seoulDept);
-      console.log(yonseiDept);
 
       let student: Student;
       let exam: Exam;

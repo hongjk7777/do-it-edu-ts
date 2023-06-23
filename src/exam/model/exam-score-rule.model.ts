@@ -3,6 +3,9 @@ import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
 export class ExamScoreRule extends BaseModel {
+  @Field(() => Int, { nullable: true })
+  round?: number;
+
   @Field(() => Int)
   problemNumber: number;
 

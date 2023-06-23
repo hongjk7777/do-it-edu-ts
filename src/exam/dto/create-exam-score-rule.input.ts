@@ -16,6 +16,10 @@ export class CreateExamScoreRuleInput {
   @IsOptional()
   examId: number;
 
+  @Field(() => Int)
+  @IsOptional()
+  round: number;
+
   @Field(() => [String])
   scoreRule: string[];
 }

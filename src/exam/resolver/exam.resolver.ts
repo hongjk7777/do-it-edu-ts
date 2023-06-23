@@ -25,6 +25,16 @@ export class ExamResolver {
     return await this.examService.findAllCommonExams();
   }
 
+  @Query(() => [ExamScoreRule])
+  async commonExamScoreRuleRounds() {
+    return await this.examService.findAllCommonExamScoreRule();
+  }
+
+  @Query(() => [ExamScoreRule])
+  async commonExamScoreRule(@Args('round') round: number) {
+    return await this.examService.findCommonExamScoreRuleByRound(round);
+  }
+
   // @Query(() => [Exam])
   // async commonExams(@Args('commonRound') commonRound: number) {
   //   return await this.examService.findAllByCommonRound(commonRound);
@@ -45,6 +55,13 @@ export class ExamResolver {
   @Mutation(() => [ExamScoreRule])
   async upsertExamScoreRule(@Args('data') data: CreateExamScoreRuleInput) {
     return await this.examService.upsertExamScoreRule(data.examId, data);
+  }
+
+  @Mutation(() => [ExamScoreRule])
+  async upsertCommonExamScoreRule(
+    @Args('data') data: CreateExamScoreRuleInput,
+  ) {
+    return await this.examService.upsertCommonExamScoreRule(data.round, data);
   }
 
   @Mutation(() => [Boolean])

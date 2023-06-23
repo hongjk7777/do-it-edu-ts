@@ -103,6 +103,18 @@ model ExamScoreRule {
   @@unique([examId, problemNumber, subProblemNumber])
 }
 
+model CommonExamScoreRule {
+  id        Int       @id @default(autoincrement()) @db.UnsignedInt
+  round     Int       @db.UnsignedInt 
+  problemNumber Int   @db.UnsignedInt
+  subProblemNumber Int   @db.UnsignedInt
+  scoreRule  String   @db.VarChar(5000)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+
+  @@unique([round, problemNumber, subProblemNumber])
+}
+
 model ExamStudent {
   id        Int       @id @default(autoincrement()) @db.UnsignedInt
   examId    Int       @db.UnsignedInt

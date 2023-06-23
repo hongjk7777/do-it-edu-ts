@@ -1,3 +1,4 @@
+import ExamErrorMsg from '@common/exception/ExamErrorMsg';
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
 import { DeleteExamScoreRuleInput } from '@exam/dto/delete-exam-score-rule.input';
 import { ExamStudentScoreDto } from '@exam/dto/exam-student-score.dto';
@@ -7,7 +8,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Exam, ExamScore, ExamScoreRule } from '@prisma/client';
+import {
+  CommonExamScoreRule,
+  Exam,
+  ExamScore,
+  ExamScoreRule,
+} from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
 import { CreateExamInput } from '../dto/create-exam.input';
@@ -219,6 +225,55 @@ export class ExamService {
     return examScoreRuleList;
   }
 
+  private async upsertCommonExamScoreRuleList(
+    examScoreRuleList: CreateExamScoreRuleInput[],
+    round: number,
+  ) {
+    for (const examScoreRule of examScoreRuleList) {
+      await this.upsertCommonExamScoreRule(round, examScoreRule);
+    }
+  }
+
+  async upsertCommonExamScoreRule(
+    round: number,
+    examScoreRule: CreateExamScoreRuleInput,
+  ) {
+    const examScoreRuleList: CommonExamScoreRule[] = [];
+
+    for (const [index, subScoreRule] of examScoreRule.scoreRule.entries()) {
+      const subProblemNumber = index + 1;
+      const upesertedExamScoreRule =
+        await this.prisma.commonExamScoreRule.upsert({
+          where: {
+            round_problemNumber_subProblemNumber: {
+              round: round,
+              problemNumber: examScoreRule.problemNumber,
+              subProblemNumber: subProblemNumber,
+            },
+          },
+          update: {
+            problemNumber: examScoreRule.problemNumber,
+            subProblemNumber: subProblemNumber,
+            scoreRule: subScoreRule,
+          },
+          create: {
+            problemNumber: examScoreRule.problemNumber,
+            subProblemNumber: subProblemNumber,
+            scoreRule: subScoreRule,
+            round: round,
+          },
+        });
+
+      if (!upesertedExamScoreRule) {
+        throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
+      }
+
+      examScoreRuleList.push(upesertedExamScoreRule);
+    }
+
+    return examScoreRuleList;
+  }
+
   private createExamScoreList(
     examDatas: CreateExamInput,
   ): CreateExamScoreInput[] {
@@ -413,6 +468,39 @@ export class ExamService {
     }
 
     return findExamList;
+  }
+
+  async findAllCommonExamScoreRule(): Promise<CommonExamScoreRule[]> {
+    const commonExamScoreRuleList =
+      await this.prisma.commonExamScoreRule.findMany({
+        where: {},
+        distinct: ['round'],
+        orderBy: {
+          round: 'asc',
+        },
+      });
+
+    if (commonExamScoreRuleList == null) {
+      throw new NotFoundException(ExamErrorMsg.NO_SCORE_RULE);
+    }
+
+    return commonExamScoreRuleList;
+  }
+
+  async findCommonExamScoreRuleByRound(
+    round: number,
+  ): Promise<CommonExamScoreRule[]> {
+    const commonExamScoreRule = await this.prisma.commonExamScoreRule.findMany({
+      where: {
+        round: round,
+      },
+    });
+
+    if (commonExamScoreRule == null) {
+      throw new NotFoundException(ExamErrorMsg.NO_SCORE_RULE);
+    }
+
+    return commonExamScoreRule;
   }
 
   async deleteAllByCourseId(courseId: number): Promise<void> {
