@@ -12,7 +12,7 @@ RUN npm install
 RUN npm install pm2 -g
 
 COPY . .
-COPY env/.prod.env ./.env
+COPY .env ./.env
 
 RUN npm run prisma:generate
 RUN npm run migrate:deploy
