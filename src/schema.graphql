@@ -49,6 +49,7 @@ input CreateExamInput {
 input CreateExamScoreRuleInput {
   examId: Int!
   problemNumber: Int!
+  round: Int!
   scoreRule: [String!]!
 }
 
@@ -113,6 +114,7 @@ type ExamScoreRule {
   createdAt: DateTime!
   id: ID!
   problemNumber: Int!
+  round: Int
   scoreRule: String!
   subProblemNumber: Int!
 
@@ -186,6 +188,7 @@ type Mutation {
   deleteExamStudent(id: Int!): Boolean!
   deleteExams(courseId: Int!): Boolean!
   deleteExamsStudentByExamId(examId: Int!): Boolean!
+  deleteLastExam(courseId: Int!): Boolean!
   deleteStudent(id: Int!): Boolean!
   deleteStudentsByCourseId(id: Int!): Boolean!
   initPassword(data: InitPasswordInput!): User!
@@ -195,10 +198,13 @@ type Mutation {
   updateCourse(data: CreateCourseInput!): Course!
   updateStudent(data: UpdateStudentInput!): Student!
   uploadExcel(file: Upload!): Boolean!
+  upsertCommonExamScoreRule(data: CreateExamScoreRuleInput!): [ExamScoreRule!]!
   upsertExamScoreRule(data: CreateExamScoreRuleInput!): [ExamScoreRule!]!
 }
 
 type Query {
+  commonExamScoreRule(round: Int!): [ExamScoreRule!]!
+  commonExamScoreRuleRounds: [ExamScoreRule!]!
   commonExams: [Exam!]!
   course(id: Int!): Course!
   courses: [Course!]!

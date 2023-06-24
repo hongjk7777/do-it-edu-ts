@@ -1,7 +1,22 @@
+import { AuthService } from '@auth/service/auth.service';
+import { PasswordService } from '@auth/service/password-service.service';
+import { TokenService } from '@auth/service/token.service';
+import { CourseModule } from '@course/course.module';
 import { CreateCourseInput } from '@course/dto/create-course.input';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { ExamStudentModule } from '@exam-student/exam-student.module';
+import CellService from '@exam-student/service/cell.service';
+import { ExamExcelService } from '@exam-student/service/exam-excel.service';
+import { ExamStudentService } from '@exam-student/service/exam-student.service';
+import { WorksheetService } from '@exam-student/service/worksheet.service';
+import { ExamService } from '@exam/service/exam.service';
+import { CacheModule, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, Inject, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Course } from '@prisma/client';
+import { StudentService } from '@student/service/student.service';
+import { UserService } from '@user/service/user.service';
 import { PrismaService } from 'nestjs-prisma';
 import { CourseService } from './course.service';
 
@@ -11,7 +26,23 @@ describe('CourseService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CourseService, PrismaService],
+      imports: [CacheModule.register()],
+      providers: [
+        CourseService,
+        PrismaService,
+        WorksheetService,
+        ExamExcelService,
+        CellService,
+        StudentService,
+        ExamStudentService,
+        ExamService,
+        AuthService,
+        UserService,
+        PasswordService,
+        TokenService,
+        ConfigService,
+        JwtService,
+      ],
     }).compile();
 
     courseService = module.get<CourseService>(CourseService);

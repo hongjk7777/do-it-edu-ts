@@ -21,11 +21,7 @@ import { CreateExamInput } from '../dto/create-exam.input';
 
 @Injectable()
 export class ExamService {
-  constructor(
-    private prisma: PrismaService,
-    private examStudentService: ExamStudentService,
-    private examService: ExamService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async save(
     round: number,
@@ -518,9 +514,11 @@ export class ExamService {
       },
     });
 
-    await this.examStudentService.deleteAllByExamId(maxRoundExam.id);
-    await this.examService.deleteExamScoreRuleByExamId(maxRoundExam.id);
-    await this.examService.deleteExamScoreByExamId(maxRoundExam.id);
+    await this.prisma.examStudent.deleteMany({
+      where: { examId: maxRoundExam.id },
+    });
+    await this.deleteExamScoreRuleByExamId(maxRoundExam.id);
+    await this.deleteExamScoreByExamId(maxRoundExam.id);
 
     await this.prisma.exam.delete({
       where: { id: maxRoundExam.id },

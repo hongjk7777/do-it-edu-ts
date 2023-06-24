@@ -24,8 +24,8 @@ import { StudentModule } from '@student/student.module';
     AuthModule,
     PassportModule,
     JwtModule.register({}),
-    ExamModule,
     StudentModule,
+    ExamModule,
   ],
   providers: [
     ExamStudentResolver,
@@ -37,5 +37,6 @@ import { StudentModule } from '@student/student.module';
     CellService,
   ],
   controllers: [ExamExcelController],
+  exports: [ExamStudentService, ExamExcelService, WorksheetService],
 })
 export class ExamStudentModule {}

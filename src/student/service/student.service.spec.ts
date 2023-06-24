@@ -45,7 +45,7 @@ describe('StudentService', () => {
       const student = { name: 'testStudent', phoneNum: '0000' };
 
       jest
-        .spyOn(prismaService.student, 'findUnique')
+        .spyOn(prismaService.student, 'findFirst')
         .mockResolvedValue(student as Student);
 
       await expect(
