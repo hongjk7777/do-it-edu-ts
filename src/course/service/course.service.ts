@@ -7,10 +7,14 @@ import {
 import { Course } from '@prisma/client';
 import { Course as CourseModel } from '@course/model/course.model';
 import { PrismaService } from 'nestjs-prisma';
+import { ExamExcelService } from '@exam-student/service/exam-excel.service';
 
 @Injectable()
 export class CourseService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private examExcelService: ExamExcelService,
+  ) {}
 
   async findAll(): Promise<CourseModel[]> {
     const findCourseList = await this.prisma.course.findMany({
@@ -139,6 +143,7 @@ export class CourseService {
   }
 
   async deleteById(courseId: number): Promise<void> {
+    await this.examExcelService.deletePrevDatas(courseId);
     await this.prisma.course.delete({ where: { id: courseId } });
   }
 
