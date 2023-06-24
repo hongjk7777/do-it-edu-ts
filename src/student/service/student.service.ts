@@ -18,6 +18,17 @@ export class StudentService {
   ) {}
 
   async save(studentDatas: CreateStudentInput): Promise<Student> {
+    const findSameNameStudent = await this.prisma.student.findFirst({
+      where: {
+        courseId: studentDatas.courseId,
+        name: studentDatas.name,
+      },
+    });
+
+    if (findSameNameStudent) {
+      throw new BadRequestException('동일한 학생이 존재합니다.');
+    }
+
     const findStudent = await this.prisma.student.findUnique({
       where: {
         phoneNum: studentDatas.phoneNum,

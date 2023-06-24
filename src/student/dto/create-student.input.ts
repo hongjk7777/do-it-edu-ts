@@ -1,5 +1,5 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsNotEmpty, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 
 @InputType()
 export class CreateStudentInput {
@@ -9,6 +9,8 @@ export class CreateStudentInput {
 
   @Field()
   @MinLength(10)
+  @IsString()
+  @Matches(/^[0-9]+$/)
   phoneNum: string;
 
   @Field(() => Int)
