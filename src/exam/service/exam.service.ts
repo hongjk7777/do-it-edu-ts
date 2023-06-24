@@ -1,4 +1,5 @@
 import ExamErrorMsg from '@common/exception/ExamErrorMsg';
+import { ExamStudentService } from '@exam-student/service/exam-student.service';
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
 import { DeleteExamScoreRuleInput } from '@exam/dto/delete-exam-score-rule.input';
 import { ExamStudentScoreDto } from '@exam/dto/exam-student-score.dto';
@@ -20,7 +21,11 @@ import { CreateExamInput } from '../dto/create-exam.input';
 
 @Injectable()
 export class ExamService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private examStudentService: ExamStudentService,
+    private examService: ExamService,
+  ) {}
 
   async save(
     round: number,
@@ -501,6 +506,25 @@ export class ExamService {
     }
 
     return commonExamScoreRule;
+  }
+
+  async deleteLastExamByCourseId(courseId: number): Promise<void> {
+    const maxRoundExam = await this.prisma.exam.findFirst({
+      where: {
+        courseId: courseId,
+      },
+      orderBy: {
+        round: 'desc',
+      },
+    });
+
+    await this.examStudentService.deleteAllByExamId(maxRoundExam.id);
+    await this.examService.deleteExamScoreRuleByExamId(maxRoundExam.id);
+    await this.examService.deleteExamScoreByExamId(maxRoundExam.id);
+
+    await this.prisma.exam.delete({
+      where: { id: maxRoundExam.id },
+    });
   }
 
   async deleteAllByCourseId(courseId: number): Promise<void> {

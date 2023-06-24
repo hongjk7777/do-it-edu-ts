@@ -52,6 +52,13 @@ export class ExamResolver {
     return true;
   }
 
+  @Mutation(() => Boolean)
+  async deleteLastExam(@Args('courseId') courseId: number) {
+    await this.examService.deleteLastExamByCourseId(courseId);
+
+    return true;
+  }
+
   @Mutation(() => [ExamScoreRule])
   async upsertExamScoreRule(@Args('data') data: CreateExamScoreRuleInput) {
     return await this.examService.upsertExamScoreRule(data.examId, data);
