@@ -48,8 +48,9 @@ input CreateExamInput {
 
 input CreateExamScoreRuleInput {
   examId: Int!
+  highestScore: Float!
   problemNumber: Int!
-  round: Int!
+  round: Int
   scoreRule: [String!]!
 }
 

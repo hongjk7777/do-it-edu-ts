@@ -192,6 +192,23 @@ export class ExamService {
   ) {
     const examScoreRuleList: ExamScoreRule[] = [];
 
+    await this.prisma.examScore.upsert({
+      where: {
+        examId_problemNumber: {
+          examId: examScoreRule.examId,
+          problemNumber: examScoreRule.problemNumber,
+        },
+      },
+      create: {
+        examId: examId,
+        problemNumber: examScoreRule.problemNumber,
+        maxScore: examScoreRule.highestScore,
+      },
+      update: {
+        maxScore: examScoreRule.highestScore,
+      },
+    });
+
     for (const [index, subScoreRule] of examScoreRule.scoreRule.entries()) {
       const subProblemNumber = index + 1;
       const upesertedExamScoreRule = await this.prisma.examScoreRule.upsert({
