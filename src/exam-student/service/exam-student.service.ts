@@ -54,12 +54,20 @@ export class ExamStudentService {
       findUser = await this.authService.signUpStudent(newUser);
     }
 
-    const createStudentInput = CreateStudentInput.of(
-      excelExamStudentDto.name,
-      excelExamStudentDto.phoneNum,
-      courseId,
-    );
-    return this.studentService.saveStudent(createStudentInput, findUser);
+    const findStudent = await this.prisma.student.findUnique({
+      where: {
+        userId: findUser.id,
+      },
+    });
+
+    if (findStudent == null) {
+      const createStudentInput = CreateStudentInput.of(
+        excelExamStudentDto.name,
+        excelExamStudentDto.phoneNum,
+        courseId,
+      );
+      return this.studentService.saveStudent(createStudentInput, findUser);
+    }
   }
 
   async saveExamStudentList(
