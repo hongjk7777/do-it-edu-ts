@@ -2,6 +2,7 @@ import ExamErrorMsg from '@common/exception/ExamErrorMsg';
 import { ExamStudentService } from '@exam-student/service/exam-student.service';
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
 import { DeleteExamScoreRuleInput } from '@exam/dto/delete-exam-score-rule.input';
+import { ExamResponseDto } from '@exam/dto/exam-response.dto';
 import { ExamStudentScoreDto } from '@exam/dto/exam-student-score.dto';
 import { ExamWithStudent } from '@exam/dto/exam-with-student.interface';
 import {
@@ -14,6 +15,8 @@ import {
   Exam,
   ExamScore,
   ExamScoreRule,
+  ExamStudent,
+  ExamStudentScore,
 } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
@@ -324,6 +327,79 @@ export class ExamService {
     });
 
     return findExamList;
+  }
+
+  async findAllInfoByCourseId(courseId: number): Promise<ExamResponseDto[]> {
+    const findExamList = await this.prisma.exam.findMany({
+      where: { courseId: courseId },
+      orderBy: [{ round: 'asc' }],
+      include: {
+        examScore: {
+          orderBy: [
+            {
+              problemNumber: 'asc',
+            },
+          ],
+        },
+        scoreRule: {
+          orderBy: [
+            {
+              problemNumber: 'asc',
+            },
+          ],
+        },
+        examStduent: {
+          include: {
+            examStudentScore: true,
+          },
+        },
+      },
+    });
+    return this.addExamData(findExamList);
+  }
+
+  private async addExamData(
+    findExamList: (Exam & {
+      scoreRule: ExamScoreRule[];
+      examScore: ExamScore[];
+      examStduent: (ExamStudent & {
+        examStudentScore: ExamStudentScore[];
+      })[];
+    })[],
+  ) {
+    const examStudentResponseDtoList: ExamResponseDto[] = [];
+
+    for (const exam of findExamList) {
+      const studentAmount = exam.examStduent.length;
+      const average = this.calcAverage(exam.examStduent);
+      const highestScore = exam.examStduent.reduce(
+        (max, cur) => Math.max(max, this.calcSum(cur.examStudentScore)),
+        0,
+      );
+
+      const examStudentResponseDto = new ExamResponseDto(
+        exam,
+        studentAmount,
+        average,
+        highestScore,
+      );
+
+      examStudentResponseDtoList.push(examStudentResponseDto);
+    }
+    return examStudentResponseDtoList;
+  }
+
+  private calcAverage(examStudentList) {
+    const totalSum = examStudentList.reduce(
+      (sum, cur) => sum + this.calcSum(cur.examStudentScore),
+      0,
+    );
+
+    return totalSum / examStudentList.length;
+  }
+
+  private calcSum(examStudentScoreList: ExamStudentScore[]) {
+    return examStudentScoreList.reduce((sum, cur) => sum + cur.problemScore, 0);
   }
 
   async findByCommonRoundAndCourseId(commonRound: number, courseId: number) {

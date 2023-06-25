@@ -41,11 +41,11 @@ export class ExamExcelService {
   }
 
   async deletePrevDatas(courseId: number) {
-    const examList = await this.examService.findAllByCourseId(courseId);
+    const examDtoList = await this.examService.findAllInfoByCourseId(courseId);
 
-    for (const exam of examList) {
+    for (const examDto of examDtoList) {
       const examStudentList = await this.examStudentService.findAllByExamId(
-        exam.id,
+        examDto.exam.id,
       );
 
       for (const examStudent of examStudentList) {
@@ -54,9 +54,9 @@ export class ExamExcelService {
         );
       }
 
-      await this.examStudentService.deleteAllByExamId(exam.id);
-      await this.examService.deleteExamScoreRuleByExamId(exam.id);
-      await this.examService.deleteExamScoreByExamId(exam.id);
+      await this.examStudentService.deleteAllByExamId(examDto.exam.id);
+      await this.examService.deleteExamScoreRuleByExamId(examDto.exam.id);
+      await this.examService.deleteExamScoreByExamId(examDto.exam.id);
     }
 
     await this.examService.deleteAllByCourseId(courseId);

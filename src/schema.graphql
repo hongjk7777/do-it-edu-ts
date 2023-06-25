@@ -98,6 +98,13 @@ type Exam {
   updatedAt: DateTime!
 }
 
+type ExamResponseDto {
+  average: Float!
+  exam: Exam!
+  highestScore: Float!
+  studentAmount: Int!
+}
+
 type ExamScore {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
@@ -209,6 +216,7 @@ type Query {
   course(id: Int!): Course!
   courses: [Course!]!
   exam(courseId: Int!, round: Int!): Exam!
+  examInfos(courseId: Int!): [ExamResponseDto!]!
   examStudent(examId: Int!, studentId: Int!): ExamStudent!
   exams(courseId: Int!): [Exam!]!
   getAvailableDate: DateTime!

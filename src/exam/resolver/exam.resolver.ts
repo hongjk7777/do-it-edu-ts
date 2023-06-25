@@ -1,5 +1,6 @@
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
 import { DeleteExamScoreRuleInput } from '@exam/dto/delete-exam-score-rule.input';
+import { ExamResponseDto } from '@exam/dto/exam-response.dto';
 import { ExamScoreRule } from '@exam/model/exam-score-rule.model';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CreateExamInput } from '../dto/create-exam.input';
@@ -18,6 +19,11 @@ export class ExamResolver {
   @Query(() => [Exam])
   async exams(@Args('courseId') courseId: number) {
     return await this.examService.findAllByCourseId(courseId);
+  }
+
+  @Query(() => [ExamResponseDto])
+  async examInfos(@Args('courseId') courseId: number) {
+    return await this.examService.findAllInfoByCourseId(courseId);
   }
 
   @Query(() => [Exam])
