@@ -1,5 +1,6 @@
 import UserInfo from '@auth/dto/user-info.dto';
 import { CurrentUser } from '@common/decorator/current-user.decorator';
+import { BadRequestException } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UpdateStudentInput } from '@student/dto/update-student.input';
 import { CreateStudentInput } from '../dto/create-student.input';
@@ -12,6 +13,9 @@ export class StudentResolver {
 
   @Mutation(() => Student)
   async createStudent(@Args('data') studentDatas: CreateStudentInput) {
+    if (!studentDatas.phoneNum.startsWith('010')) {
+      throw new BadRequestException('올바른 전화번호 양식이 아닙니다.');
+    }
     return await this.studentService.save(studentDatas);
   }
 
