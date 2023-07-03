@@ -388,11 +388,15 @@ export class ExamService {
 
     for (const exam of findExamList) {
       const studentAmount = exam.examStduent.length;
-      const average = this.calcAverage(exam.examStduent);
-      const highestScore = exam.examStduent.reduce(
-        (max, cur) => Math.max(max, this.calcSum(cur.examStudentScore)),
-        0,
-      );
+      const average =
+        studentAmount == 0 ? 0 : this.calcAverage(exam.examStduent);
+      const highestScore =
+        studentAmount == 0
+          ? 0
+          : exam.examStduent.reduce(
+              (max, cur) => Math.max(max, this.calcSum(cur.examStudentScore)),
+              0,
+            );
 
       const examStudentResponseDto = new ExamResponseDto(
         exam,
