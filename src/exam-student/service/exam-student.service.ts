@@ -123,6 +123,20 @@ export class ExamStudentService {
     savedExamStudent: ExamStudent,
   ) {
     for (const examStudentScore of examStudentScoreList) {
+      const findExamStudentScore =
+        await this.prisma.examStudentScore.findUnique({
+          where: {
+            examStudentId_problemNumber: {
+              examStudentId: savedExamStudent.id,
+              problemNumber: examStudentScore.problemNumber,
+            },
+          },
+        });
+
+      if (findExamStudentScore.problemScore == examStudentScore.problemScore) {
+        continue;
+      }
+
       const upsertExamStudentScore = await this.prisma.examStudentScore.upsert({
         where: {
           examStudentId_problemNumber: {
