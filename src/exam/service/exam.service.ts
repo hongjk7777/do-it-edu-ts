@@ -321,7 +321,7 @@ export class ExamService {
     return examScoreRuleList;
   }
 
-  async findAllByCourseId(courseId: number): Promise<Exam[]> {
+  async findAllByCourseId(courseId: number) {
     const findExamList = await this.prisma.exam.findMany({
       where: { courseId: courseId },
       orderBy: [{ round: 'asc' }],
@@ -495,27 +495,128 @@ export class ExamService {
     const examStudentScoreList: ExamStudentScoreDto[] = [];
 
     findExamList.forEach((findExam) => {
-      const examStudentList = findExam.examStduent;
-
-      examStudentList.forEach((examStudent) => {
-        let sum = 0;
-        const scoreList = [];
-        examStudent.examStudentScore.forEach((score) => {
-          sum += score.problemScore;
-          scoreList.push(score.problemScore);
-        });
-
-        examStudentScoreList.push(
-          ExamStudentScoreDto.of(
-            examStudent.student,
-            sum,
-            scoreList,
-            examStudent.seoulDept,
-            examStudent.yonseiDept,
-            examStudent.student.course,
-          ),
-        );
+      const studentScoreList = this.addSumProperty(findExam);
+      studentScoreList.forEach((studentScore) => {
+        examStudentScoreList.push(studentScore);
       });
+    });
+
+    return examStudentScoreList;
+  }
+
+  async findAllScoreByExamId(examId: number): Promise<ExamStudentScoreDto[]> {
+    const findExam = await this.prisma.exam.findUnique({
+      where: { id: examId },
+      include: {
+        examStduent: {
+          include: {
+            student: {
+              include: {
+                course: true,
+              },
+            },
+            examStudentScore: {
+              select: {
+                problemNumber: true,
+                problemScore: true,
+              },
+              orderBy: [
+                {
+                  problemNumber: 'asc',
+                },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    const examStudentScoreList: ExamStudentScoreDto[] = [];
+
+    const studentScoreList = this.addSumProperty(findExam);
+    studentScoreList.forEach((studentScore) => {
+      examStudentScoreList.push(studentScore);
+    });
+
+    return examStudentScoreList;
+  }
+
+  private addSumProperty(findExam) {
+    const ret = [];
+    const examStudentList = findExam.examStduent;
+
+    examStudentList.forEach((examStudent) => {
+      let sum = 0;
+      const scoreList = [];
+      examStudent.examStudentScore.forEach((score) => {
+        sum += score.problemScore;
+        scoreList.push(score.problemScore);
+      });
+
+      ret.push(
+        ExamStudentScoreDto.of(
+          examStudent.student,
+          sum,
+          scoreList,
+          examStudent.seoulDept,
+          examStudent.yonseiDept,
+          examStudent.student.course,
+        ),
+      );
+    });
+
+    return ret;
+  }
+
+  async findAllByExamId(examId: number): Promise<ExamStudentScoreDto[]> {
+    const findExam = await this.prisma.exam.findUnique({
+      where: { id: examId },
+      include: {
+        examStduent: {
+          include: {
+            student: {
+              include: {
+                course: true,
+              },
+            },
+            examStudentScore: {
+              select: {
+                problemNumber: true,
+                problemScore: true,
+              },
+              orderBy: [
+                {
+                  problemNumber: 'asc',
+                },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    const examStudentScoreList: ExamStudentScoreDto[] = [];
+
+    const examStudentList = findExam.examStduent;
+
+    examStudentList.forEach((examStudent) => {
+      let sum = 0;
+      const scoreList = [];
+      examStudent.examStudentScore.forEach((score) => {
+        sum += score.problemScore;
+        scoreList.push(score.problemScore);
+      });
+
+      examStudentScoreList.push(
+        ExamStudentScoreDto.of(
+          examStudent.student,
+          sum,
+          scoreList,
+          examStudent.seoulDept,
+          examStudent.yonseiDept,
+          examStudent.student.course,
+        ),
+      );
     });
 
     return examStudentScoreList;
@@ -675,6 +776,17 @@ export class ExamService {
     return scoreDatas;
   }
 
+  async getScoreDatasByCourseId(examId: number) {
+    const examList = await this.findAllScoreByExamId(examId);
+    const sortedExamList = this.sortExamList(examList);
+
+    //TODO: 여기 fp로 바꾸기
+    this.addExtractRanking(sortedExamList);
+    this.addDistribution(sortedExamList);
+
+    return sortedExamList;
+  }
+
   addExtractRanking(examStudentScoreList: ExamStudentScoreDto[]) {
     let sameCount = 0;
     let lastScore = -1;
@@ -725,7 +837,7 @@ export class ExamService {
     return scoreData;
   }
 
-  async getRankingDatas(commonRound: number) {
+  async getRankingDatasByCommonRound(commonRound: number) {
     const examStudentScoreList = await this.findAllByCommonRound(commonRound);
     const sortedExamList = this.sortExamList(examStudentScoreList);
 
@@ -735,6 +847,18 @@ export class ExamService {
     const rankingDatas = this.changeToRankingDatas(sortedExamList);
 
     return rankingDatas;
+  }
+
+  async getRankingDatasByExamId(examId: number) {
+    const examStudentScoreList = await this.findAllScoreByExamId(examId);
+    const sortedExamList = this.sortExamList(examStudentScoreList);
+
+    this.addExtractRanking(sortedExamList);
+
+    // // const exportExamDTOs = this.changeToExportExamDTO(examStudentScoreList);
+    // const rankingDatas = this.changeToRankingDatas(sortedExamList);
+
+    return sortedExamList;
   }
 
   changeToRankingDatas(examStudentScoreList: ExamStudentScoreDto[]) {

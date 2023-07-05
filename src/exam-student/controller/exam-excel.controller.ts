@@ -58,8 +58,19 @@ export class ExamExcelController {
     );
 
     res.sendFile(path.join(process.cwd(), excelPath));
-    // const file = createReadStream(join(process.cwd(), path));
+  }
 
-    // file.pipe(res);
+  @Get('score-excel')
+  @Public()
+  @HttpCode(200)
+  async downloadScoreExcelFile(
+    @Query('courseId', ParseIntPipe) courseId: number,
+    @Res() res: Response,
+  ) {
+    const excelPath = await this.examExcelService.createScoreExcelFile(
+      courseId,
+    );
+
+    res.sendFile(path.join(process.cwd(), excelPath));
   }
 }
