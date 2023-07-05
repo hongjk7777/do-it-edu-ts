@@ -133,7 +133,10 @@ export class ExamStudentService {
           },
         });
 
-      if (findExamStudentScore.problemScore == examStudentScore.problemScore) {
+      if (
+        findExamStudentScore != null &&
+        findExamStudentScore.problemScore == examStudentScore.problemScore
+      ) {
         continue;
       }
 
