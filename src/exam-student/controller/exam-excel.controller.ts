@@ -73,4 +73,16 @@ export class ExamExcelController {
 
     res.sendFile(path.join(process.cwd(), excelPath));
   }
+
+  @Get('score-date')
+  @Public()
+  @HttpCode(200)
+  async downloadScoreDateFile(
+    @Query('courseId', ParseIntPipe) courseId: number,
+    @Res() res: Response,
+  ) {
+    const excelPath = await this.examExcelService.createScoreDateFile(courseId);
+
+    res.sendFile(path.join(process.cwd(), excelPath));
+  }
 }
