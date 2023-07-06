@@ -3,6 +3,7 @@ import { ExamStudentService } from '@exam-student/service/exam-student.service';
 import { CreateExamScoreRuleInput } from '@exam/dto/create-exam-score-rule.input';
 import { DeleteExamScoreRuleInput } from '@exam/dto/delete-exam-score-rule.input';
 import { ExamResponseDto } from '@exam/dto/exam-response.dto';
+import { ExamStudentDateDto } from '@exam/dto/exam-student-date.dto';
 import { ExamStudentScoreDto } from '@exam/dto/exam-student-score.dto';
 import { ExamWithStudent } from '@exam/dto/exam-with-student.interface';
 import {
@@ -12,11 +13,13 @@ import {
 } from '@nestjs/common';
 import {
   CommonExamScoreRule,
+  Course,
   Exam,
   ExamScore,
   ExamScoreRule,
   ExamStudent,
   ExamStudentScore,
+  Student,
 } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateExamScoreInput } from '../dto/create-exam-score.input';
@@ -519,6 +522,7 @@ export class ExamService {
               select: {
                 problemNumber: true,
                 problemScore: true,
+                updatedAt: true,
               },
               orderBy: [
                 {
@@ -542,7 +546,7 @@ export class ExamService {
   }
 
   private addSumProperty(findExam) {
-    const ret = [];
+    const ret: ExamStudentScoreDto[] = [];
     const examStudentList = findExam.examStduent;
 
     examStudentList.forEach((examStudent) => {
@@ -626,6 +630,80 @@ export class ExamService {
     return examList.sort((a, b) => {
       return b.sum - a.sum;
     });
+  }
+
+  async findAllScoreDateByExamId(
+    examId: number,
+  ): Promise<ExamStudentDateDto[]> {
+    const findExam = await this.prisma.exam.findUnique({
+      where: { id: examId },
+      include: {
+        examStduent: {
+          include: {
+            student: {
+              include: {
+                course: true,
+              },
+            },
+            examStudentScore: {
+              select: {
+                problemNumber: true,
+                problemScore: true,
+                updatedAt: true,
+              },
+              orderBy: [
+                {
+                  problemNumber: 'asc',
+                },
+              ],
+            },
+          },
+        },
+      },
+    });
+
+    return this.createExamStudentDateList(findExam);
+  }
+
+  createExamStudentDateList(
+    findExam: Exam & {
+      examStduent: (ExamStudent & {
+        examStudentScore: {
+          updatedAt: Date;
+          problemNumber: number;
+          problemScore: number;
+        }[];
+        student: Student & { course: Course };
+      })[];
+    },
+  ) {
+    const ret: ExamStudentDateDto[] = [];
+    const examStudentList = findExam.examStduent;
+
+    examStudentList.forEach((examStudent) => {
+      let latestTime = 0;
+      let sum = 0;
+      const scoreList = [];
+      examStudent.examStudentScore.forEach((score) => {
+        sum += score.problemScore;
+        scoreList.push(score.problemScore);
+        latestTime = Math.max(latestTime, score.updatedAt.getTime());
+      });
+
+      ret.push(
+        ExamStudentDateDto.of(
+          examStudent.student,
+          sum,
+          scoreList,
+          examStudent.seoulDept,
+          examStudent.yonseiDept,
+          examStudent.student.course,
+          new Date(latestTime).toLocaleDateString(),
+        ),
+      );
+    });
+
+    return ret;
   }
 
   async findAllCommonExams(): Promise<Exam[]> {
@@ -776,13 +854,25 @@ export class ExamService {
     return scoreDatas;
   }
 
-  async getScoreDatasByCourseId(examId: number) {
+  async getScoreDatasByExamId(examId: number) {
     const examList = await this.findAllScoreByExamId(examId);
     const sortedExamList = this.sortExamList(examList);
 
     //TODO: 여기 fp로 바꾸기
     this.addExtractRanking(sortedExamList);
     this.addDistribution(sortedExamList);
+
+    return sortedExamList;
+  }
+
+  async getScoreDatesByExamId(examId: number) {
+    const examList = await this.findAllScoreDateByExamId(examId);
+    const sortedExamList = examList.sort((a, b) => {
+      return b.sum - a.sum;
+    });
+
+    //TODO: 여기 fp로 바꾸기
+    this.addExtractRanking(sortedExamList);
 
     return sortedExamList;
   }
@@ -854,9 +944,6 @@ export class ExamService {
     const sortedExamList = this.sortExamList(examStudentScoreList);
 
     this.addExtractRanking(sortedExamList);
-
-    // // const exportExamDTOs = this.changeToExportExamDTO(examStudentScoreList);
-    // const rankingDatas = this.changeToRankingDatas(sortedExamList);
 
     return sortedExamList;
   }

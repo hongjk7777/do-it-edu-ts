@@ -21,6 +21,7 @@ export class ExamExcelService {
   ) {}
   FILE_PATH = '';
   SCORE_UNIT_SIZE = 5;
+  SCORE_DATE_UNIT_SIZE = 3;
   DISTRIBUTION_UNIT_SIZE = 2;
 
   async putExcelDataToDB(file: Express.Multer.File, courseId: number) {
@@ -284,9 +285,7 @@ export class ExamExcelService {
     // console.log(studentMap.get(1));
 
     for (const exam of examList) {
-      const scoreDatas = await this.examService.getScoreDatasByCourseId(
-        exam.id,
-      );
+      const scoreDatas = await this.examService.getScoreDatasByExamId(exam.id);
       curIndex += this.DISTRIBUTION_UNIT_SIZE;
 
       scoreDatas.forEach((scoreData, index) => {
@@ -375,5 +374,88 @@ export class ExamExcelService {
       originalSheet,
       `테스트(${examRound}) 채점기준`,
     );
+  }
+
+  async createScoreDateFile(courseId: number) {
+    const workbook = XLSX.utils.book_new();
+
+    const course = await this.prisma.course.findUnique({
+      where: {
+        id: courseId,
+      },
+    });
+
+    await this.createScoreDateSheet(workbook, courseId, course.name);
+
+    const fileName = `test.xlsx`;
+
+    await XLSX.writeFile(workbook, this.FILE_PATH + fileName);
+    await XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+
+    return this.FILE_PATH + fileName;
+  }
+
+  private async createScoreDateSheet(
+    workbook: XLSX.WorkBook,
+    courseId: number,
+    courseName: string,
+  ) {
+    const studentList = await this.studentService.findAllByCourseId(courseId);
+    const examList = await this.examService.findAllByCourseId(courseId);
+
+    const excelAoa = [];
+    excelAoa.push([courseName + '성적 입력 날짜']);
+
+    const excelIndexArray = this.createScoreDateIndexArray(examList.length);
+    excelAoa.push(excelIndexArray);
+
+    const studentMap = this.addExcelIndex(studentList, excelAoa);
+
+    let curIndex = 3; // 이름과 번호
+
+    for (const exam of examList) {
+      const rankingDatas = await this.examService.getScoreDatesByExamId(
+        exam.id,
+      );
+      curIndex += this.SCORE_DATE_UNIT_SIZE;
+
+      rankingDatas.forEach((studentData) => {
+        const index = studentMap.get(studentData.student.id);
+
+        excelAoa[index].push(studentData.sum);
+        excelAoa[index].push(studentData.ranking);
+        excelAoa[index].push(studentData.updatedAt);
+      });
+
+      excelAoa.forEach((array, index) => {
+        if (index == 0) return;
+
+        if (array.length < curIndex) {
+          for (let index = 0; index < this.SCORE_DATE_UNIT_SIZE; index++) {
+            array.push('');
+          }
+        }
+      });
+    }
+
+    const originalSheet = XLSX.utils.aoa_to_sheet(excelAoa);
+    XLSX.utils.book_append_sheet(workbook, originalSheet, '성적입력날짜');
+  }
+
+  createScoreDateIndexArray(length: number) {
+    const excelIndexArray = [];
+
+    excelIndexArray.push('순번');
+    excelIndexArray.push('이름');
+    excelIndexArray.push('학부모전번');
+
+    for (let index = 0; index < length; index++) {
+      const round = index + 1;
+      excelIndexArray.push(`#${round}`);
+      excelIndexArray.push(`순위`);
+      excelIndexArray.push(`입력날짜`);
+    }
+
+    return excelIndexArray;
   }
 }
