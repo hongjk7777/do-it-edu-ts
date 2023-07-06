@@ -221,6 +221,7 @@ export class ExamStudentService {
           },
         },
       },
+      orderBy: [{ exam: { round: 'asc' } }],
     });
 
     return await this.addExamData(findExamStudentList);
