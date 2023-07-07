@@ -152,10 +152,14 @@ type ExamStudentResponseDto {
   highestScore: Float!
   ranking: Int!
   rankingList: [Int!]!
+  seoulDept: String
+  seoulDeptRankingList: [StudentDeptRankingDto!]
   stdDev: Float!
   studentAmount: Int!
   subAverageList: [Float!]!
   subHighestScoreList: [Float!]!
+  yonseiDept: String
+  yonseiDeptRankingList: [StudentDeptRankingDto!]
 }
 
 type ExamStudentScore {
@@ -254,6 +258,13 @@ type Student {
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
+}
+
+type StudentDeptRankingDto {
+  deptName: String!
+  rank: Int!
+  rankingList: [Int!]!
+  studentAmount: Int!
 }
 
 type Token {

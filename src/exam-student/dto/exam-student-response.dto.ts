@@ -7,6 +7,7 @@ import {
   ExamStudentScore as ExamStudentScoreModel,
 } from '@prisma/client';
 import { Student } from '@student/model/student.model';
+import { StudentDeptRankingDto } from './student-dept-ranking.dto';
 
 @ObjectType()
 export class ExamStudentResponseDto {
@@ -15,6 +16,12 @@ export class ExamStudentResponseDto {
 
   @Field(() => Exam)
   exam: ExamModel;
+
+  @Field(() => String, { nullable: true })
+  seoulDept: string;
+
+  @Field(() => String, { nullable: true })
+  yonseiDept: string;
 
   @Field(() => Int)
   studentAmount: number;
@@ -40,9 +47,17 @@ export class ExamStudentResponseDto {
   @Field(() => [Float])
   subHighestScoreList: number[];
 
+  @Field(() => [StudentDeptRankingDto], { nullable: true })
+  seoulDeptRankingList: StudentDeptRankingDto[];
+
+  @Field(() => [StudentDeptRankingDto], { nullable: true })
+  yonseiDeptRankingList: StudentDeptRankingDto[];
+
   constructor(
     examStudentScoreList: ExamStudentScoreModel[],
     exam: ExamModel,
+    seoulDept: string,
+    yonseiDept: string,
     studentAmount: number,
     average: number,
     stdDev: number,
@@ -51,9 +66,13 @@ export class ExamStudentResponseDto {
     rankingList: number[],
     subAberageList: number[],
     subHighestScoreList: number[],
+    seoulDeptRankingList: StudentDeptRankingDto[],
+    yonseiDeptRankingList: StudentDeptRankingDto[],
   ) {
     this.examStudentScoreList = examStudentScoreList;
     this.exam = exam;
+    this.seoulDept = seoulDept;
+    this.yonseiDept = yonseiDept;
     this.studentAmount = studentAmount;
     this.average = average;
     this.stdDev = stdDev;
@@ -62,5 +81,7 @@ export class ExamStudentResponseDto {
     this.rankingList = rankingList;
     this.subAverageList = subAberageList;
     this.subHighestScoreList = subHighestScoreList;
+    this.seoulDeptRankingList = seoulDeptRankingList;
+    this.yonseiDeptRankingList = yonseiDeptRankingList;
   }
 }

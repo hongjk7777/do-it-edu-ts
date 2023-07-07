@@ -2,10 +2,17 @@ import { SignupInput } from '@auth/input/signup.input';
 import { AuthService } from '@auth/service/auth.service';
 import { ExamStudentResponseDto } from '@exam-student/dto/exam-student-response.dto';
 import { ExcelExamStudentDto } from '@exam-student/dto/excel-exam-student.dto';
+import { StudentDeptRankingDto } from '@exam-student/dto/student-dept-ranking.dto';
 import { StudentDeptDto } from '@exam-student/dto/student-dept.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ExamStudent, ExamStudentScore, Student } from '@prisma/client';
+import {
+  Exam,
+  ExamScore,
+  ExamStudent,
+  ExamStudentScore,
+  Student,
+} from '@prisma/client';
 import { CreateStudentInput } from '@student/dto/create-student.input';
 import { StudentService } from '@student/service/student.service';
 import { UserService } from '@user/service/user.service';
@@ -227,22 +234,34 @@ export class ExamStudentService {
     return await this.addExamData(findExamStudentList);
   }
 
-  private async addExamData(findExamStudentList) {
+  private async addExamData(
+    findExamStudentList: (ExamStudent & {
+      examStudentScore: ExamStudentScore[];
+      student: Student;
+      exam: Exam & { examScore: ExamScore[] };
+    })[],
+  ) {
     const examStudentResponseDtoList: ExamStudentResponseDto[] = [];
 
     for (const examStudent of findExamStudentList) {
       const examStudentList = await this.findAllByExamId(examStudent.examId);
 
+      const scoreSum = this.calcSum(examStudent.examStudentScore);
       const studentAmount = examStudentList.length;
       const average = this.calcAverage(examStudentList);
       const subAverageList = this.calcSubAverageList(examStudentList);
       const variance = this.calcVariance(examStudentList, average);
       const stdDev = Math.sqrt(variance);
-      const ranking = this.calcRanking(
-        this.calcSum(examStudent.examStudentScore),
+      const ranking = this.calcRanking(scoreSum, examStudentList);
+      const rankingList = this.calcRankingList(examStudentList);
+      const seoulDeptRankingList = this.calcSeoulDeptRankingList(
+        scoreSum,
         examStudentList,
       );
-      const rankingList = this.calcRankingList(examStudentList);
+      const yonseiDeptRankingList = this.calcYonseiDeptRankingList(
+        scoreSum,
+        examStudentList,
+      );
       const subHighestScoreList = this.calcSubHighestScoreList(examStudentList);
       const highestScore = examStudentList.reduce(
         (max, cur) => Math.max(max, this.calcSum(cur.examStudentScore)),
@@ -252,6 +271,8 @@ export class ExamStudentService {
       const examStudentResponseDto = new ExamStudentResponseDto(
         examStudent.examStudentScore,
         examStudent.exam,
+        examStudent.seoulDept,
+        examStudent.yonseiDept,
         studentAmount,
         average,
         stdDev,
@@ -260,6 +281,8 @@ export class ExamStudentService {
         rankingList,
         subAverageList,
         subHighestScoreList,
+        seoulDeptRankingList,
+        yonseiDeptRankingList,
       );
 
       examStudentResponseDtoList.push(examStudentResponseDto);
@@ -283,6 +306,94 @@ export class ExamStudentService {
     });
 
     return rankingList;
+  }
+
+  private calcSeoulDeptRankingList(
+    scoreSum: number,
+    examStudentList: (ExamStudent & {
+      examStudentScore: ExamStudentScore[];
+    })[],
+  ) {
+    const studentDeptRankingDtoList: StudentDeptRankingDto[] = [];
+
+    const deptList: string[] = this.extractSeoulDeptList(examStudentList);
+
+    deptList.forEach((dept) => {
+      const filteredList = examStudentList.filter((examStudent) => {
+        return examStudent.seoulDept.trim() == dept;
+      });
+
+      const rank = this.calcRanking(scoreSum, filteredList);
+      const rankingList = this.calcRankingList(filteredList);
+      const studentAmount = filteredList.length;
+
+      studentDeptRankingDtoList.push(
+        new StudentDeptRankingDto(dept, rank, studentAmount, rankingList),
+      );
+    });
+
+    return studentDeptRankingDtoList;
+  }
+  extractSeoulDeptList(
+    examStudentList: (ExamStudent & { examStudentScore: ExamStudentScore[] })[],
+  ): string[] {
+    const deptList: string[] = [];
+
+    examStudentList.forEach((examStudent) => {
+      const dept = examStudent.seoulDept.trim();
+
+      if (dept != null && dept != '') {
+        if (!deptList.includes(dept)) {
+          deptList.push(dept);
+        }
+      }
+    });
+
+    return deptList;
+  }
+
+  private calcYonseiDeptRankingList(
+    scoreSum: number,
+    examStudentList: (ExamStudent & {
+      examStudentScore: ExamStudentScore[];
+    })[],
+  ) {
+    const studentDeptRankingDtoList: StudentDeptRankingDto[] = [];
+
+    const deptList: string[] = this.extractYonseiDeptList(examStudentList);
+
+    deptList.forEach((dept) => {
+      const filteredList = examStudentList.filter((examStudent) => {
+        return examStudent.yonseiDept.trim() == dept;
+      });
+
+      const rank = this.calcRanking(scoreSum, filteredList);
+      const rankingList = this.calcRankingList(filteredList);
+      const studentAmount = filteredList.length;
+
+      studentDeptRankingDtoList.push(
+        new StudentDeptRankingDto(dept, rank, studentAmount, rankingList),
+      );
+    });
+
+    return studentDeptRankingDtoList;
+  }
+  extractYonseiDeptList(
+    examStudentList: (ExamStudent & { examStudentScore: ExamStudentScore[] })[],
+  ): string[] {
+    const deptList: string[] = [];
+
+    examStudentList.forEach((examStudent) => {
+      const dept = examStudent.yonseiDept.trim();
+
+      if (dept != null && dept != '') {
+        if (!deptList.includes(dept)) {
+          deptList.push(dept);
+        }
+      }
+    });
+
+    return deptList;
   }
 
   private calcAverage(examStudentList) {
