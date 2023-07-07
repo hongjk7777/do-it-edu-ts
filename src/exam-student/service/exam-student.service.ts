@@ -320,7 +320,10 @@ export class ExamStudentService {
 
     deptList.forEach((dept) => {
       const filteredList = examStudentList.filter((examStudent) => {
-        return examStudent.seoulDept.trim() == dept;
+        if (examStudent.seoulDept) {
+          return examStudent.seoulDept.trim() == dept;
+        }
+        return false;
       });
 
       const rank = this.calcRanking(scoreSum, filteredList);
@@ -340,9 +343,13 @@ export class ExamStudentService {
     const deptList: string[] = [];
 
     examStudentList.forEach((examStudent) => {
+      if (examStudent.seoulDept == null) {
+        return;
+      }
+
       const dept = examStudent.seoulDept.trim();
 
-      if (dept != null && dept != '') {
+      if (dept != '') {
         if (!deptList.includes(dept)) {
           deptList.push(dept);
         }
@@ -364,7 +371,10 @@ export class ExamStudentService {
 
     deptList.forEach((dept) => {
       const filteredList = examStudentList.filter((examStudent) => {
-        return examStudent.yonseiDept.trim() == dept;
+        if (examStudent.yonseiDept) {
+          return examStudent.yonseiDept.trim() == dept;
+        }
+        return false;
       });
 
       const rank = this.calcRanking(scoreSum, filteredList);
@@ -384,6 +394,10 @@ export class ExamStudentService {
     const deptList: string[] = [];
 
     examStudentList.forEach((examStudent) => {
+      if (examStudent.yonseiDept == null) {
+        return;
+      }
+
       const dept = examStudent.yonseiDept.trim();
 
       if (dept != null && dept != '') {
