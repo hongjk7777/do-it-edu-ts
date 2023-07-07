@@ -244,7 +244,14 @@ export class ExamStudentService {
     const examStudentResponseDtoList: ExamStudentResponseDto[] = [];
 
     for (const examStudent of findExamStudentList) {
-      const examStudentList = await this.findAllByExamId(examStudent.examId);
+      let examStudentList = [];
+      if (examStudent.exam.commonRound > 0) {
+        examStudentList = await this.findAllByCommonRound(
+          examStudent.exam.commonRound,
+        );
+      } else {
+        examStudentList = await this.findAllByExamId(examStudent.examId);
+      }
 
       const scoreSum = this.calcSum(examStudent.examStudentScore);
       const studentAmount = examStudentList.length;
@@ -288,6 +295,22 @@ export class ExamStudentService {
       examStudentResponseDtoList.push(examStudentResponseDto);
     }
     return examStudentResponseDtoList;
+  }
+  async findAllByCommonRound(commonRound: number) {
+    const findExamStudentList = await this.prisma.examStudent.findMany({
+      where: {
+        exam: {
+          commonRound: commonRound,
+        },
+      },
+
+      include: {
+        examStudentScore: true,
+        student: true,
+      },
+    });
+
+    return findExamStudentList;
   }
 
   private calcRankingList(
