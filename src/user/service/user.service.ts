@@ -40,7 +40,9 @@ export class UserService {
   }
 
   async initPassword(userData: InitPasswordInput): Promise<User> {
-    const initPassword = this.configService.get('INIT_PASSWORD');
+    const initPassword =
+      userData.username + this.configService.get('INIT_PASSWORD');
+
     const newPassword = await this.passwordService.hashPassword(initPassword);
 
     const savedUser = await this.prisma.user.update({
