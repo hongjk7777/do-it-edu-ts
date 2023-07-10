@@ -46,6 +46,13 @@ export class ExamStudentResolver {
     return await this.examStudentService.saveWithScore(examStudentDatas);
   }
 
+  @Mutation(() => ExamStudent)
+  async updateStudentDept(
+    @Args('data') examStudentDatas: CreateExamStudentInput,
+  ) {
+    return await this.examStudentService.updateDept(examStudentDatas);
+  }
+
   @Mutation(() => Boolean)
   async deleteExamStudent(@Args('id') id: number) {
     await this.examStudentService.delete(id);

@@ -42,6 +42,33 @@ export class ExamStudentService {
     return savedExamStudent;
   }
 
+  async updateDept(examStudentDatas: CreateExamStudentInput) {
+    const examStudent = await this.prisma.examStudent.findUnique({
+      where: {
+        examId_studentId: {
+          examId: examStudentDatas.examId,
+          studentId: examStudentDatas.studnetId,
+        },
+      },
+    });
+
+    if (!examStudent) {
+      throw new NotFoundException('학생 성적 입력 중 오류가 발생했습니다.');
+    }
+
+    const savedExamStudent = await this.prisma.examStudent.update({
+      where: {
+        id: examStudent.id,
+      },
+      data: {
+        seoulDept: examStudentDatas.seoulDept,
+        yonseiDept: examStudentDatas.yonseiDept,
+      },
+    });
+
+    return savedExamStudent;
+  }
+
   async saveExcelExamStudent(
     excelExamStudentDto: ExcelExamStudentDto,
     courseId: number,
@@ -97,10 +124,7 @@ export class ExamStudentService {
         },
       },
 
-      update: {
-        seoulDept: examStudentDatas.seoulDept,
-        yonseiDept: examStudentDatas.yonseiDept,
-      },
+      update: {},
 
       create: {
         exam: {
