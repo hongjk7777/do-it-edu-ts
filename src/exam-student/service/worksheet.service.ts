@@ -208,6 +208,41 @@ export class WorksheetService {
     return roundExams;
   }
 
+  //REFACTOR: 함수가 너무 길어서 이해하기 힘듬
+  async saveExcelRoundExamScores(
+    worksheet: ExcelJS.Worksheet,
+    courseId: number,
+    round: number,
+  ) {
+    const roundExams = [];
+    const scoreColNum = 4;
+
+    const excelExamScoreDtoList = await this.getExcelExamScoreDtoList(
+      worksheet,
+      scoreColNum,
+      courseId,
+    );
+
+    console.log(excelExamScoreDtoList);
+
+    // const exams = [];
+
+    const exam = await this.examService.findByRoundAndCourseId(round, courseId);
+
+    const excelPromises = excelExamScoreDtoList.map((excelExamScoreDto) => {
+      const createExamStudentInput = CreateExamStudentInput.of(
+        exam.id,
+        excelExamScoreDto.student.id,
+        excelExamScoreDto.scoreList,
+      );
+      return this.examStudentService.saveWithScore(createExamStudentInput);
+    });
+
+    await Promise.all(excelPromises);
+
+    return roundExams;
+  }
+
   private getCommonRound(
     commonRoundRow: ExcelJS.Row,
     curCommonRound: number,

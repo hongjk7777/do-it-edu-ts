@@ -14,6 +14,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { createReadStream } from 'fs';
+import { number } from 'joi';
 import path, { join } from 'path';
 
 @Controller('exam-excel')
@@ -27,9 +28,24 @@ export class ExamExcelController {
     @UploadedFile() file: Express.Multer.File,
     @Query('courseId') courseId: string,
   ) {
-    return await this.examExcelService.putExcelDataToDB(
+    return await this.examExcelService.wholeExcelDataToDB(
       file,
       parseInt(courseId),
+    );
+  }
+
+  @Post('score-round')
+  @HttpCode(201)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadRoundScoreFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('courseId') courseId: string,
+    @Query('round') round: string,
+  ) {
+    return await this.examExcelService.excelDataToDB(
+      file,
+      parseInt(courseId),
+      parseInt(round),
     );
   }
 

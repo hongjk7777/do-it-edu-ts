@@ -209,6 +209,7 @@ type Mutation {
   signup(data: SignupInput!): Auth!
   updateCourse(data: CreateCourseInput!): Course!
   updateStudent(data: UpdateStudentInput!): Student!
+  updateStudentDept(data: CreateExamStudentInput!): ExamStudent!
   uploadExcel(file: Upload!): Boolean!
   upsertCommonExamScoreRule(data: CreateExamScoreRuleInput!): [ExamScoreRule!]!
   upsertExamScoreRule(data: CreateExamScoreRuleInput!): [ExamScoreRule!]!

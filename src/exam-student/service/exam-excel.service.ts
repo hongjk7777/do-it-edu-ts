@@ -24,7 +24,7 @@ export class ExamExcelService {
   SCORE_DATE_UNIT_SIZE = 3;
   DISTRIBUTION_UNIT_SIZE = 2;
 
-  async putExcelDataToDB(file: Express.Multer.File, courseId: number) {
+  async wholeExcelDataToDB(file: Express.Multer.File, courseId: number) {
     const workbook = new ExcelJS.Workbook();
     const excel = await workbook.xlsx.load(file.buffer);
 
@@ -45,6 +45,29 @@ export class ExamExcelService {
     );
 
     await this.worksheetService.saveExcelExamScores(personalSheet, courseId);
+  }
+
+  async excelDataToDB(
+    file: Express.Multer.File,
+    courseId: number,
+    round: number,
+  ) {
+    const workbook = new ExcelJS.Workbook();
+    const excel = await workbook.xlsx.load(file.buffer);
+
+    // const deleteSuccess = await this.deletePrevDatas(courseId);
+    // 1.examStudentScore, 2. examStudent, 3.examscorerule, 4.examscore, 5. exam, 6.student
+
+    const personalSheet = this.worksheetService.findWorksheetByName(
+      'Sheet1',
+      excel,
+    );
+
+    await this.worksheetService.saveExcelRoundExamScores(
+      personalSheet,
+      courseId,
+      round,
+    );
   }
 
   async deletePrevDatas(courseId: number) {
