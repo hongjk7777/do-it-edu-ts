@@ -70,6 +70,24 @@ export class ExamExcelService {
     );
   }
 
+  async uploadStudentFile(file: Express.Multer.File, courseId: number) {
+    const workbook = new ExcelJS.Workbook();
+    const excel = await workbook.xlsx.load(file.buffer);
+
+    const personalSheet = this.worksheetService.findWorksheetByName(
+      'Sheet1',
+      excel,
+    );
+
+    const excelExamStudentList =
+      this.worksheetService.extractNewExamStudentScoreList(personalSheet);
+
+    await this.examStudentService.saveExamStudentList(
+      excelExamStudentList,
+      courseId,
+    );
+  }
+
   async deletePrevDatas(courseId: number) {
     const examDtoList = await this.examService.findAllInfoByCourseId(courseId);
 
@@ -102,6 +120,23 @@ export class ExamExcelService {
     const roundDeptDatas = await this.worksheetService.extractRoundDeptDatas(
       worksheet,
       courseId,
+    );
+  }
+
+  async putDeptDataToDB(
+    file: Express.Multer.File,
+    courseId: number,
+    round: number,
+  ) {
+    const workbook = new ExcelJS.Workbook();
+    const excel = await workbook.xlsx.load(file.buffer);
+
+    const worksheet = excel.worksheets[0];
+
+    const roundDeptDatas = await this.worksheetService.extractRoundDeptData(
+      worksheet,
+      courseId,
+      round,
     );
   }
 

@@ -49,6 +49,19 @@ export class ExamExcelController {
     );
   }
 
+  @Post('student')
+  @HttpCode(201)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadStudentFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('courseId') courseId: string,
+  ) {
+    return await this.examExcelService.uploadStudentFile(
+      file,
+      parseInt(courseId),
+    );
+  }
+
   @Post('dept')
   @HttpCode(201)
   @UseInterceptors(FileInterceptor('file'))
@@ -59,6 +72,21 @@ export class ExamExcelController {
     return await this.examExcelService.putDeptDatasToDB(
       file,
       parseInt(courseId),
+    );
+  }
+
+  @Post('dept-round')
+  @HttpCode(201)
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadDeptRoundFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('courseId') courseId: string,
+    @Query('round') round: number,
+  ) {
+    return await this.examExcelService.putDeptDataToDB(
+      file,
+      parseInt(courseId),
+      round,
     );
   }
 

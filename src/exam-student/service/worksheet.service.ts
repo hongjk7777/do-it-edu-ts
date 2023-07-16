@@ -15,6 +15,7 @@ import { ExamStudentService } from './exam-student.service';
 @Injectable()
 export class WorksheetService {
   INDEX_ROW = 2;
+  STUDENT_INDEX_ROW = 1;
   COMMON_ROUND_ROW = 1;
 
   constructor(
@@ -43,6 +44,28 @@ export class WorksheetService {
   extractExamStudentScoreList(worksheet: ExcelJS.Worksheet) {
     const excelExamStudentDtoList: ExcelExamStudentDto[] = [];
     const indexRow = worksheet.getRow(this.INDEX_ROW);
+    const nameCol = this.getNameCol(indexRow);
+    const phoneNumCol = this.getPhoneNumCol(indexRow);
+    const studentNumCol = this.getStudentNumCol(indexRow);
+    const studentRows = this.getStudentRows(worksheet, nameCol, studentNumCol);
+
+    studentRows.forEach((row) => {
+      const name = this.getName(row, nameCol);
+      const phoneNum = this.getPhoneNum(row, phoneNumCol);
+
+      const excelExamStudentDto = new ExcelExamStudentDto(
+        name.toString(),
+        phoneNum,
+      );
+      excelExamStudentDtoList.push(excelExamStudentDto);
+    });
+
+    return excelExamStudentDtoList;
+  }
+
+  extractNewExamStudentScoreList(worksheet: ExcelJS.Worksheet) {
+    const excelExamStudentDtoList: ExcelExamStudentDto[] = [];
+    const indexRow = worksheet.getRow(this.STUDENT_INDEX_ROW);
     const nameCol = this.getNameCol(indexRow);
     const phoneNumCol = this.getPhoneNumCol(indexRow);
     const studentNumCol = this.getStudentNumCol(indexRow);
@@ -304,9 +327,10 @@ export class WorksheetService {
   private async findStudent(
     worksheet: ExcelJS.Worksheet,
     rowNum: number,
-    courseId: number,
+    indexRowNum: number,
   ) {
-    const indexRow = worksheet.getRow(this.INDEX_ROW);
+    const indexRow = worksheet.getRow(indexRowNum);
+
     const nameCol = this.getNameCol(indexRow);
     const name = this.getName(worksheet.getRow(rowNum), nameCol);
 
@@ -353,6 +377,7 @@ export class WorksheetService {
           colNum,
           courseId,
           commonRound,
+          this.INDEX_ROW,
         );
 
         const studentDeptPromises = studentDeptDtoList.map((studentDeptDto) => {
@@ -366,11 +391,35 @@ export class WorksheetService {
     }
   }
 
+  async extractRoundDeptData(
+    worksheet: ExcelJS.Worksheet,
+    courseId: number,
+    round: number,
+  ) {
+    const deptColNum = 4;
+    const commonRound = 0;
+
+    const studentDeptDtoList = await this.getStudentDepts(
+      worksheet,
+      deptColNum,
+      courseId,
+      commonRound,
+      this.STUDENT_INDEX_ROW,
+    );
+
+    const studentDeptPromises = studentDeptDtoList.map((studentDeptDto) => {
+      return this.examStudentService.updateStudentDept(studentDeptDto);
+    });
+
+    Promise.all(studentDeptPromises);
+  }
+
   async getStudentDepts(
     worksheet: ExcelJS.Worksheet,
     col: number,
     courseId: number,
     commonRound: number,
+    indexRowNum: number,
   ) {
     //한 행씩 아래로 내려가면서 이름 있는지 확인하고 -> 하나의 객체 만들어서 저장
     //끝나고 나서 합계 구하기
@@ -392,7 +441,7 @@ export class WorksheetService {
           commonRound,
           courseId,
         );
-        student = await this.findStudent(worksheet, rowNum, courseId);
+        student = await this.findStudent(worksheet, rowNum, indexRowNum);
       } catch (error) {
         console.log(error.message);
       }
