@@ -68,8 +68,6 @@ export class AuthResolver {
     @CurrentUserId() userId: number,
     @Args('data') chnagePasswordInput: ChangePasswordInput,
   ) {
-    console.log(userId);
-
     return await this.userService.changePassword(chnagePasswordInput, userId);
   }
 }

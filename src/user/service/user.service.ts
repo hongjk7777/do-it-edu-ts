@@ -84,8 +84,6 @@ export class UserService {
       },
     });
 
-    console.log(findUser);
-
     if (!findUser) {
       throw new NotFoundException('해당하는 유저가 없습니다.');
     }

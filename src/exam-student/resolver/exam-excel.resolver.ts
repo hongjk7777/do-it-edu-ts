@@ -10,8 +10,6 @@ export class ExamExcelResolver {
   async uploadExcel(
     @Args('file', { type: () => GraphQLUpload }) file: FileUpload,
   ) {
-    console.log(file.filename);
-
     // 파일 업로드 처리 로직 작성
 
     return true;

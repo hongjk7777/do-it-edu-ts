@@ -197,6 +197,7 @@ export class WorksheetService {
           worksheet,
           colNum,
           courseId,
+          this.INDEX_ROW,
         );
 
         // const exams = [];
@@ -206,7 +207,7 @@ export class WorksheetService {
           courseId,
         );
 
-        if (exam == null) {
+        if (exam == null && excelExamScoreDtoList.length != 0) {
           exam = await this.examService.save(round, commonRound, courseId);
         }
 
@@ -244,9 +245,8 @@ export class WorksheetService {
       worksheet,
       scoreColNum,
       courseId,
+      this.STUDENT_INDEX_ROW,
     );
-
-    console.log(excelExamScoreDtoList);
 
     // const exams = [];
 
@@ -288,6 +288,7 @@ export class WorksheetService {
     worksheet: ExcelJS.Worksheet,
     col: number,
     courseId: number,
+    indexRowNum: number,
   ) {
     //한 행씩 아래로 내려가면서 이름 있는지 확인하고 -> 하나의 객체 만들어서 저장
     //끝나고 나서 합계 구하기
@@ -300,7 +301,7 @@ export class WorksheetService {
         const scoreCells = this.getScoreCells(worksheet, rowNum, col);
         const scores = this.cellService.getScores(scoreCells);
 
-        const student = await this.findStudent(worksheet, rowNum, courseId);
+        const student = await this.findStudent(worksheet, rowNum, indexRowNum);
         // const studentId = student.id;
 
         if (student != null) {
@@ -336,7 +337,6 @@ export class WorksheetService {
 
     const phoneNumCol = this.getPhoneNumCol(indexRow);
     const phoneNum = this.getPhoneNum(worksheet.getRow(rowNum), phoneNumCol);
-    console.log(name + '' + phoneNum);
     const student = await this.findOneByStudentInfo(name, phoneNum);
 
     //TODO: 여기 뒤에 2개 안 넣어도 되려나
@@ -443,11 +443,10 @@ export class WorksheetService {
         );
         student = await this.findStudent(worksheet, rowNum, indexRowNum);
       } catch (error) {
-        console.log(error.message);
+        // console.log(error.message);
       }
 
       if (student) {
-        console.log(student.name);
         if (seoulDept || yonseiDept) {
           studentDepts.push(
             new StudentDeptDto(
