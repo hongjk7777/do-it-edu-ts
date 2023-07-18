@@ -394,10 +394,9 @@ export class WorksheetService {
   async extractRoundDeptData(
     worksheet: ExcelJS.Worksheet,
     courseId: number,
-    round: number,
+    commonRound: number,
   ) {
     const deptColNum = 4;
-    const commonRound = 0;
 
     const studentDeptDtoList = await this.getStudentDepts(
       worksheet,
@@ -446,7 +445,7 @@ export class WorksheetService {
         // console.log(error.message);
       }
 
-      if (student) {
+      if (student && exam) {
         if (seoulDept || yonseiDept) {
           studentDepts.push(
             new StudentDeptDto(

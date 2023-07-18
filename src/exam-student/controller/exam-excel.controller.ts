@@ -81,12 +81,12 @@ export class ExamExcelController {
   async uploadDeptRoundFile(
     @UploadedFile() file: Express.Multer.File,
     @Query('courseId') courseId: string,
-    @Query('round') round: number,
+    @Query('commonRound') commonRound: string,
   ) {
     return await this.examExcelService.putDeptDataToDB(
       file,
       parseInt(courseId),
-      round,
+      parseInt(commonRound),
     );
   }
 

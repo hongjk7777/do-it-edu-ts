@@ -126,7 +126,7 @@ export class ExamExcelService {
   async putDeptDataToDB(
     file: Express.Multer.File,
     courseId: number,
-    round: number,
+    commonRound: number,
   ) {
     const workbook = new ExcelJS.Workbook();
     const excel = await workbook.xlsx.load(file.buffer);
@@ -136,7 +136,7 @@ export class ExamExcelService {
     const roundDeptDatas = await this.worksheetService.extractRoundDeptData(
       worksheet,
       courseId,
-      round,
+      commonRound,
     );
   }
 
