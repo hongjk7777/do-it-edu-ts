@@ -387,7 +387,7 @@ export class ExamStudentService {
   extractSeoulDeptList(
     examStudentList: (ExamStudent & { examStudentScore: ExamStudentScore[] })[],
   ): string[] {
-    const deptList: string[] = [];
+    let deptList: string[] = [];
 
     examStudentList.forEach((examStudent) => {
       if (examStudent.seoulDept == null) {
@@ -402,6 +402,8 @@ export class ExamStudentService {
         }
       }
     });
+
+    deptList = deptList.sort();
 
     return deptList;
   }
@@ -438,7 +440,7 @@ export class ExamStudentService {
   extractYonseiDeptList(
     examStudentList: (ExamStudent & { examStudentScore: ExamStudentScore[] })[],
   ): string[] {
-    const deptList: string[] = [];
+    let deptList: string[] = [];
 
     examStudentList.forEach((examStudent) => {
       if (examStudent.yonseiDept == null) {
@@ -453,6 +455,8 @@ export class ExamStudentService {
         }
       }
     });
+
+    deptList = deptList.sort();
 
     return deptList;
   }
