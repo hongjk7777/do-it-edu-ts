@@ -5,12 +5,12 @@ import { IsNotEmpty, MinLength } from 'class-validator';
 export class SignupInput {
   @Field()
   @IsNotEmpty()
-  @MinLength(8)
+  @MinLength(4)
   username: string;
 
   @Field()
   @IsNotEmpty()
-  @MinLength(6)
+  @MinLength(4)
   password: string;
 
   constructor(username: string, password: string) {
