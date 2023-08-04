@@ -9,7 +9,7 @@ describe('signupInput', () => {
   });
 
   it('should fail validation with short username', async () => {
-    const input = new SignupInput('short', 'valid_password');
+    const input = new SignupInput('shr', 'valid_password');
     const errors = await validate(input);
     expect(errors).toHaveLength(1);
     expect(errors[0].constraints).toHaveProperty('minLength');
@@ -23,7 +23,7 @@ describe('signupInput', () => {
   });
 
   it('should fail validation with short password', async () => {
-    const input = new SignupInput('valid_username', 'short');
+    const input = new SignupInput('valid_username', 'shr');
     const errors = await validate(input);
     expect(errors).toHaveLength(1);
     expect(errors[0].constraints).toHaveProperty('minLength');
