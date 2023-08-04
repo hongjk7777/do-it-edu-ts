@@ -5,7 +5,7 @@ import { IsNotEmpty, MinLength } from 'class-validator';
 export class LoginInput {
   @Field()
   @IsNotEmpty()
-  @MinLength(8)
+  @MinLength(4)
   username: string;
 
   @Field()

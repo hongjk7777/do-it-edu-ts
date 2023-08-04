@@ -12,7 +12,7 @@ describe('LoginInput', () => {
 
   it('should fail validation with short username', async () => {
     const input = new LoginInput();
-    input.username = 'short';
+    input.username = 'shr';
     input.password = 'valid_password';
     const errors = await validate(input);
     expect(errors).toHaveLength(1);
