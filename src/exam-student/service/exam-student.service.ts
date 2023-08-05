@@ -347,7 +347,7 @@ export class ExamStudentService {
     examStudentList.forEach((examStudent) => {
       const score = this.calcSum(examStudent.examStudentScore);
 
-      const index = Math.floor(score == 50 ? (score - 1) / 5 : score / 5);
+      const index = Math.floor(score == 0 ? score / 5 : (score - 1) / 5);
 
       rankingList[index]++;
     });
