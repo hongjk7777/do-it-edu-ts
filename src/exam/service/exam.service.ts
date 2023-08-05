@@ -205,15 +205,18 @@ export class ExamService {
       create: {
         examId: examId,
         problemNumber: examScoreRule.problemNumber,
+        title: examScoreRule.title,
         maxScore: examScoreRule.highestScore,
       },
       update: {
         maxScore: examScoreRule.highestScore,
+        title: examScoreRule.title,
       },
     });
 
     for (const [index, subScoreRule] of examScoreRule.scoreRule.entries()) {
       const subProblemNumber = index + 1;
+      const maxScore = examScoreRule.maxScore[index];
       const upesertedExamScoreRule = await this.prisma.examScoreRule.upsert({
         where: {
           examId_problemNumber_subProblemNumber: {
@@ -226,11 +229,13 @@ export class ExamService {
           problemNumber: examScoreRule.problemNumber,
           subProblemNumber: subProblemNumber,
           scoreRule: subScoreRule,
+          maxScore: maxScore,
         },
         create: {
           problemNumber: examScoreRule.problemNumber,
           subProblemNumber: subProblemNumber,
           scoreRule: subScoreRule,
+          maxScore: maxScore,
           exam: {
             connect: {
               id: examId,

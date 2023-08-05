@@ -16,6 +16,10 @@ export class CreateExamScoreRuleInput {
   @IsOptional()
   examId: number;
 
+  @Field(() => String)
+  @IsOptional()
+  title: string;
+
   @Field(() => Int, { nullable: true })
   @IsOptional()
   round: number;
@@ -23,6 +27,10 @@ export class CreateExamScoreRuleInput {
   @Field(() => Float)
   @IsOptional()
   highestScore: number;
+
+  @Field(() => [Int])
+  @IsOptional()
+  maxScore: number[];
 
   @Field(() => [String])
   scoreRule: string[];

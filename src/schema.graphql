@@ -49,9 +49,11 @@ input CreateExamInput {
 input CreateExamScoreRuleInput {
   examId: Int!
   highestScore: Float!
+  maxScore: [Int!]!
   problemNumber: Int!
   round: Int
   scoreRule: [String!]!
+  title: String!
 }
 
 input CreateExamStudentInput {
@@ -112,6 +114,7 @@ type ExamScore {
   id: ID!
   maxScore: Float!
   problemNumber: Int!
+  title: String!
 
   """Identifies the date and time when the object was last updated."""
   updatedAt: DateTime!
@@ -121,6 +124,7 @@ type ExamScoreRule {
   """Identifies the date and time when the object was created."""
   createdAt: DateTime!
   id: ID!
+  maxScore: Int!
   problemNumber: Int!
   round: Int
   scoreRule: String!
