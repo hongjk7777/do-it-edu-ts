@@ -14,4 +14,10 @@ export class ExamExcelResolver {
 
     return true;
   }
+
+  @Mutation(() => Boolean)
+  async deleteStudent(@Args('id') id: number) {
+    await this.examExcelService.deleteByStudentId(id);
+    return true;
+  }
 }

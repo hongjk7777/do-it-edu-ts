@@ -1,4 +1,5 @@
 import { ExamStudentResponseDto } from '@exam-student/dto/exam-student-response.dto';
+import { ExamExcelService } from '@exam-student/service/exam-excel.service';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CreateExamStudentInput } from '../dto/create-exam-student.input';
 import { ExamStudent } from '../model/exam-student.model';
@@ -21,7 +22,7 @@ export class ExamStudentResolver {
 
   @Query(() => [ExamStudentResponseDto])
   async getStudentExamsByStudentId(@Args('studentId') studentId: number) {
-    return await this.examStudentService.findAllByStudentId(studentId);
+    return await this.examStudentService.findAllExamDataByStudentId(studentId);
   }
 
   @Query(() => [ExamStudent])

@@ -238,8 +238,14 @@ export class ExamStudentService {
     return findExamStudent;
   }
 
+  async findAllExamDataByStudentId(studentId: number) {
+    const findExamStudentList = await this.findAllByStudentId(studentId);
+
+    return await this.addExamData(findExamStudentList);
+  }
+
   async findAllByStudentId(studentId: number) {
-    const findExamStudentList = await this.prisma.examStudent.findMany({
+    return await this.prisma.examStudent.findMany({
       where: {
         studentId: studentId,
       },
@@ -254,8 +260,6 @@ export class ExamStudentService {
       },
       orderBy: [{ exam: { round: 'asc' } }],
     });
-
-    return await this.addExamData(findExamStudentList);
   }
 
   private async addExamData(
@@ -627,6 +631,12 @@ export class ExamStudentService {
   async deleteAllByExamId(examId: number): Promise<void> {
     await this.prisma.examStudent.deleteMany({
       where: { examId: examId },
+    });
+  }
+
+  async deleteAllByStudentId(studentId: number) {
+    await this.prisma.examStudent.deleteMany({
+      where: { studentId: studentId },
     });
   }
 

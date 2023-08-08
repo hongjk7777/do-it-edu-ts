@@ -44,11 +44,11 @@ export class StudentResolver {
     return await this.studentService.findAllByCourseId(courseId);
   }
 
-  @Mutation(() => Boolean)
-  async deleteStudent(@Args('id') studentId: number) {
-    await this.studentService.deleteOneById(studentId);
-    return true;
-  }
+  // @Mutation(() => Boolean)
+  // async deleteStudent(@Args('id') studentId: number) {
+  //   await this.studentService.deleteOneById(studentId);
+  //   return true;
+  // }
 
   @Mutation(() => Boolean)
   async deleteStudentsByCourseId(@Args('id') courseId: number) {

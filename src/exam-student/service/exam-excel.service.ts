@@ -111,6 +111,22 @@ export class ExamExcelService {
     await this.studentService.deleteAllByCourseId(courseId);
   }
 
+  async deleteByStudentId(studentId: number) {
+    const examStudentList = await this.examStudentService.findAllByStudentId(
+      studentId,
+    );
+
+    for (const examStudent of examStudentList) {
+      await this.examStudentService.deleteAllExamStudentScoreByExamStudentId(
+        examStudent.id,
+      );
+    }
+
+    await this.examStudentService.deleteAllByStudentId(studentId);
+
+    await this.studentService.deleteOneById(studentId);
+  }
+
   async putDeptDatasToDB(file: Express.Multer.File, courseId: number) {
     const workbook = new ExcelJS.Workbook();
     const excel = await workbook.xlsx.load(file.buffer);
