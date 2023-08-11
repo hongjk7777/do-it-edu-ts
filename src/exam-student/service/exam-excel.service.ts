@@ -28,7 +28,7 @@ export class ExamExcelService {
     const workbook = new ExcelJS.Workbook();
     const excel = await workbook.xlsx.load(file.buffer);
 
-    const deleteSuccess = await this.deletePrevDatas(courseId);
+    const deleteSuccess = await this.deletePrevStudentDatas(courseId);
     // 1.examStudentScore, 2. examStudent, 3.examscorerule, 4.examscore, 5. exam, 6.student
 
     const personalSheet = this.worksheetService.findWorksheetByName(
@@ -108,6 +108,26 @@ export class ExamExcelService {
     }
 
     await this.examService.deleteAllByCourseId(courseId);
+    await this.studentService.deleteAllByCourseId(courseId);
+  }
+
+  async deletePrevStudentDatas(courseId: number) {
+    const examDtoList = await this.examService.findAllInfoByCourseId(courseId);
+
+    for (const examDto of examDtoList) {
+      const examStudentList = await this.examStudentService.findAllByExamId(
+        examDto.exam.id,
+      );
+
+      for (const examStudent of examStudentList) {
+        await this.examStudentService.deleteAllExamStudentScoreByExamStudentId(
+          examStudent.id,
+        );
+      }
+
+      await this.examStudentService.deleteAllByExamId(examDto.exam.id);
+    }
+
     await this.studentService.deleteAllByCourseId(courseId);
   }
 
