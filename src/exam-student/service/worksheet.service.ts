@@ -209,6 +209,8 @@ export class WorksheetService {
 
         if (exam == null && excelExamScoreDtoList.length != 0) {
           exam = await this.examService.save(round, commonRound, courseId);
+        } else {
+          await this.examService.updateExam(exam.id, commonRound);
         }
 
         const excelPromises = excelExamScoreDtoList.map((excelExamScoreDto) => {

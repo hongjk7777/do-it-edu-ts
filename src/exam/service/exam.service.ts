@@ -95,6 +95,23 @@ export class ExamService {
     return exam.commonRound;
   }
 
+  async updateExam(examId: number, commonRound: number) {
+    const savedExam = await this.prisma.exam.update({
+      where: {
+        id: examId,
+      },
+      data: {
+        commonRound: commonRound,
+      },
+    });
+
+    if (!savedExam) {
+      throw new NotFoundException('시험 업데이트 중 오류가 발생했습니다.');
+    }
+
+    return savedExam;
+  }
+
   private async upsertExam(
     examDatas: CreateExamInput,
     examScoreList: CreateExamScoreInput[],
