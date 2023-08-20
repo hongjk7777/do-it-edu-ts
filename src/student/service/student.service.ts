@@ -129,7 +129,8 @@ export class StudentService {
     });
 
     if (!findStudent) {
-      throw new NotFoundException('해당하는 학생이 없습니다.');
+      return null;
+      // throw new NotFoundException('해당하는 학생이 없습니다.');
     }
 
     return findStudent;
@@ -139,6 +140,24 @@ export class StudentService {
     const findStudent: Student = await this.prisma.student.findUnique({
       where: {
         userId: userId,
+      },
+    });
+
+    if (!findStudent) {
+      throw new NotFoundException('해당하는 학생이 없습니다.');
+    }
+
+    return findStudent;
+  }
+
+  async findOneByNameAndCourseId(
+    name: string,
+    courseId: number,
+  ): Promise<Student> {
+    const findStudent: Student = await this.prisma.student.findFirst({
+      where: {
+        name: name,
+        courseId: courseId,
       },
     });
 

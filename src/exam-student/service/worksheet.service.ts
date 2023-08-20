@@ -303,7 +303,12 @@ export class WorksheetService {
         const scoreCells = this.getScoreCells(worksheet, rowNum, col);
         const scores = this.cellService.getScores(scoreCells);
 
-        const student = await this.findStudent(worksheet, rowNum, indexRowNum);
+        const student = await this.findStudent(
+          worksheet,
+          rowNum,
+          indexRowNum,
+          courseId,
+        );
         // const studentId = student.id;
 
         if (student != null) {
@@ -331,6 +336,7 @@ export class WorksheetService {
     worksheet: ExcelJS.Worksheet,
     rowNum: number,
     indexRowNum: number,
+    courseId: number,
   ) {
     const indexRow = worksheet.getRow(indexRowNum);
 
@@ -339,13 +345,15 @@ export class WorksheetService {
 
     const phoneNumCol = this.getPhoneNumCol(indexRow);
     const phoneNum = this.getPhoneNum(worksheet.getRow(rowNum), phoneNumCol);
-    const student = await this.findOneByStudentInfo(name, phoneNum);
+
+    const student = await this.findOneByStudentInfo(name, phoneNum, courseId);
+    // console.log(name + phoneNum + 1);
 
     //TODO: 여기 뒤에 2개 안 넣어도 되려나
     return student;
   }
 
-  async findOneByStudentInfo(name: string, phoneNum: string) {
+  async findOneByStudentInfo(name: string, phoneNum: string, courseId: number) {
     let student: Student = null;
 
     if (phoneNum == '') {
@@ -353,6 +361,13 @@ export class WorksheetService {
     }
 
     student = await this.studentService.findOneByPhoneNum(phoneNum);
+
+    if (student === null) {
+      student = await this.studentService.findOneByNameAndCourseId(
+        name,
+        courseId,
+      );
+    }
 
     if (student === null) {
       throw new SyntaxError(ExcelErrorMsg.NO_EXISTENT_STUDENT);
@@ -442,7 +457,16 @@ export class WorksheetService {
           commonRound,
           courseId,
         );
-        student = await this.findStudent(worksheet, rowNum, indexRowNum);
+        student = await this.findStudent(
+          worksheet,
+          rowNum,
+          indexRowNum,
+          courseId,
+        );
+
+        // if (student) {
+        //   console.log(student.name + seoulDept + yonseiDept);
+        // }
       } catch (error) {
         // console.log(error.message);
       }
