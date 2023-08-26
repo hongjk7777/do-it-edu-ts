@@ -212,19 +212,19 @@ export class ExamExcelService {
     excelAoa.push([]);
 
     const exam = await this.examService.findFirstByCommonRound(commonRound);
-    console.log(exam);
 
     if (exam == null) {
       return;
     }
 
     exam.scoreRule.forEach((scoreRule, index) => {
-      console.log(exam.examScore);
-      console.log(exam.examScore[index]);
+      let str = `${scoreRule.problemNumber}-(${scoreRule.subProblemNumber})`;
 
-      excelAoa.push([
-        `${scoreRule.problemNumber}-(${scoreRule.subProblemNumber}) ${exam.examScore[index].title}`,
-      ]);
+      if (exam.examScore[index]) {
+        str += `${exam.examScore[index].title}`;
+      }
+
+      excelAoa.push([str]);
       excelAoa.push([scoreRule.scoreRule]);
       excelAoa.push([]);
     });
