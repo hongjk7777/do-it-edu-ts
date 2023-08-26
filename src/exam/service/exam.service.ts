@@ -487,6 +487,43 @@ export class ExamService {
     return findExam;
   }
 
+  async findFirstByCommonRound(commonRound: number) {
+    const findExamList = await this.prisma.exam.findFirst({
+      where: {
+        commonRound: commonRound,
+        course: {
+          name: {
+            contains: '오픈',
+          },
+        },
+      },
+      include: {
+        examScore: {
+          orderBy: [
+            {
+              problemNumber: 'asc',
+            },
+          ],
+        },
+        scoreRule: {
+          orderBy: [
+            {
+              problemNumber: 'asc',
+            },
+          ],
+        },
+      },
+
+      orderBy: [
+        {
+          id: 'desc',
+        },
+      ],
+    });
+
+    return findExamList;
+  }
+
   async findAllByCommonRound(
     commonRound: number,
   ): Promise<ExamStudentScoreDto[]> {

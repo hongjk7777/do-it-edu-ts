@@ -180,6 +180,7 @@ export class ExamExcelService {
     const workbook = XLSX.utils.book_new();
 
     await this.createScoreDataSheet(workbook, commonRound);
+    await this.createCommonScoreCriteriaSheet(workbook, commonRound);
     await this.createRankingDataSheet(workbook, commonRound);
 
     const fileName = `공통 ${commonRound}회차 시험.xlsx`;
@@ -200,6 +201,33 @@ export class ExamExcelService {
     const scoreDatas = await this.examService.getScoreDatas(commonRound);
     const scoreDistSheet = XLSX.utils.json_to_sheet(scoreDatas);
     XLSX.utils.book_append_sheet(workbook, scoreDistSheet, '성적분포');
+  }
+
+  private async createCommonScoreCriteriaSheet(
+    workbook: XLSX.WorkBook,
+    commonRound: number,
+  ) {
+    const excelAoa = [];
+    excelAoa.push([`공통 ${commonRound}회차 시험 채점기준`]);
+    excelAoa.push([]);
+
+    const exam = await this.examService.findFirstByCommonRound(commonRound);
+
+    if (exam == null) {
+      return;
+    }
+
+    exam.scoreRule.forEach((scoreRule, index) => {
+      excelAoa.push([
+        `${scoreRule.problemNumber}-(${scoreRule.subProblemNumber}) ${exam.examScore[index].title}`,
+      ]);
+      excelAoa.push([scoreRule.scoreRule]);
+      excelAoa.push([]);
+    });
+
+    const originalSheet = XLSX.utils.aoa_to_sheet(excelAoa);
+
+    XLSX.utils.book_append_sheet(workbook, originalSheet, `채점기준`);
   }
 
   private async createRankingDataSheet(
