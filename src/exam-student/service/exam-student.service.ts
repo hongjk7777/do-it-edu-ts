@@ -245,7 +245,7 @@ export class ExamStudentService {
   }
 
   async findAllByStudentId(studentId: number) {
-    return await this.prisma.examStudent.findMany({
+    const findExamStudentList = await this.prisma.examStudent.findMany({
       where: {
         studentId: studentId,
       },
@@ -260,6 +260,29 @@ export class ExamStudentService {
       },
       orderBy: [{ exam: { round: 'asc' } }],
     });
+
+    for (const examStudent of findExamStudentList) {
+      const examScoreRuleList = await this.prisma.examScoreRule.findMany({
+        where: {
+          examId: examStudent.examId,
+        },
+      });
+
+      for (const examScoreRule of examScoreRuleList) {
+        if (
+          examStudent &&
+          examStudent.exam &&
+          examScoreRule.maxScore &&
+          examScoreRule.maxScore > 0
+        ) {
+          examStudent.exam.examScore[
+            examScoreRule.problemNumber - 1
+          ].maxScore += examScoreRule.maxScore;
+        }
+      }
+    }
+
+    return findExamStudentList;
   }
 
   private async addExamData(
@@ -273,6 +296,7 @@ export class ExamStudentService {
 
     for (const examStudent of findExamStudentList) {
       let examStudentList = [];
+
       if (examStudent.exam.commonRound > 0) {
         examStudentList = await this.findAllByCommonRound(
           examStudent.exam.commonRound,
