@@ -486,8 +486,15 @@ export class ExamExcelService {
     excelAoa.push([]);
 
     exam.examScore.forEach((examScore) => {
+      let maxScoreSum = 0;
+      exam.scoreRule.forEach((scoreRule) => {
+        if (scoreRule.problemNumber == examScore.problemNumber) {
+          maxScoreSum += scoreRule.maxScore;
+        }
+      });
+
       excelAoa.push([
-        `${examScore.problemNumber}. ${examScore.title} (${examScore.maxScore})`,
+        `${examScore.problemNumber}. ${examScore.title} (총 ${maxScoreSum}점)`,
       ]);
 
       exam.scoreRule.forEach((scoreRule) => {
