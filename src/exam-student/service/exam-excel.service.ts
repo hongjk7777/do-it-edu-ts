@@ -493,7 +493,7 @@ export class ExamExcelService {
       exam.scoreRule.forEach((scoreRule) => {
         if (scoreRule.problemNumber == examScore.problemNumber) {
           excelAoa.push([
-            `${scoreRule.problemNumber}-(${scoreRule.subProblemNumber})`,
+            `${scoreRule.problemNumber}-(${scoreRule.subProblemNumber}) ${scoreRule.maxScore}점`,
           ]);
           excelAoa.push([scoreRule.scoreRule]);
           excelAoa.push([]);
