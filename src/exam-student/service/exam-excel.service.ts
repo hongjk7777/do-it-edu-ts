@@ -485,7 +485,10 @@ export class ExamExcelService {
     excelAoa.push([`${examRound}회차 시험 채점기준`]);
     excelAoa.push([]);
 
-    exam.scoreRule.forEach((scoreRule) => {
+    exam.scoreRule.forEach((scoreRule, index) => {
+      excelAoa.push([
+        `${exam.examScore[index].problemNumber}. ${exam.examScore[index].title} (${exam.examScore[index].maxScore})`,
+      ]);
       excelAoa.push([
         `${scoreRule.problemNumber}-(${scoreRule.subProblemNumber})`,
       ]);
