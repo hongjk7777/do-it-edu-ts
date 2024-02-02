@@ -501,17 +501,6 @@ export class ExamExcelService {
       });
     });
 
-    exam.scoreRule.forEach((scoreRule, index) => {
-      excelAoa.push([
-        `${exam.examScore[index].problemNumber}. ${exam.examScore[index].title} (${exam.examScore[index].maxScore})`,
-      ]);
-      excelAoa.push([
-        `${scoreRule.problemNumber}-(${scoreRule.subProblemNumber})`,
-      ]);
-      excelAoa.push([scoreRule.scoreRule]);
-      excelAoa.push([]);
-    });
-
     const originalSheet = XLSX.utils.aoa_to_sheet(excelAoa);
 
     XLSX.utils.book_append_sheet(
