@@ -40,8 +40,7 @@ export class UserService {
   }
 
   async initPassword(userData: InitPasswordInput): Promise<User> {
-    const initPassword =
-      userData.username + this.configService.get('INIT_PASSWORD');
+    const initPassword = userData.username;
 
     const newPassword = await this.passwordService.hashPassword(initPassword);
 
