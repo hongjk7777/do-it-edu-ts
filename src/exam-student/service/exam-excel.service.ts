@@ -485,6 +485,22 @@ export class ExamExcelService {
     excelAoa.push([`${examRound}회차 시험 채점기준`]);
     excelAoa.push([]);
 
+    exam.examScore.forEach((examScore) => {
+      excelAoa.push([
+        `${examScore.problemNumber}. ${examScore.title} (${examScore.maxScore})`,
+      ]);
+
+      exam.scoreRule.forEach((scoreRule) => {
+        if (scoreRule.problemNumber == examScore.problemNumber) {
+          excelAoa.push([
+            `${scoreRule.problemNumber}-(${scoreRule.subProblemNumber})`,
+          ]);
+          excelAoa.push([scoreRule.scoreRule]);
+          excelAoa.push([]);
+        }
+      });
+    });
+
     exam.scoreRule.forEach((scoreRule, index) => {
       excelAoa.push([
         `${exam.examScore[index].problemNumber}. ${exam.examScore[index].title} (${exam.examScore[index].maxScore})`,
