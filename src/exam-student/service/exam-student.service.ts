@@ -43,6 +43,7 @@ export class ExamStudentService {
 
     if (sum == 0) {
       await this.deleteAllExamStudentScoreByExamStudentId(savedExamStudent.id);
+      await this.delete(savedExamStudent.id);
     } else {
       await this.upsertExamStudentScore(examStudentScoreList, savedExamStudent);
     }
