@@ -33,11 +33,19 @@ export class ExamStudentService {
   ): Promise<ExamStudent> {
     const savedExamStudent = await this.upsertExamStudent(examStudentDatas);
 
-    const examStudentScoreList = this.createExamStudnetScoreList(
-      examStudentDatas.scores,
-    );
+    const examStudentScoreList: CreateExamStudentScoreInput[] =
+      this.createExamStudnetScoreList(examStudentDatas.scores);
 
-    await this.upsertExamStudentScore(examStudentScoreList, savedExamStudent);
+    let sum = 0;
+    for (let i = 0; i < examStudentScoreList.length; i++) {
+      sum += examStudentScoreList[i].problemScore;
+    }
+
+    if (sum == 0) {
+      await this.deleteAllExamStudentScoreByExamStudentId(savedExamStudent.id);
+    } else {
+      await this.upsertExamStudentScore(examStudentScoreList, savedExamStudent);
+    }
 
     return savedExamStudent;
   }
