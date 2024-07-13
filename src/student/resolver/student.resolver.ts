@@ -14,8 +14,10 @@ export class StudentResolver {
   @Mutation(() => Student)
   async createStudent(@Args('data') studentDatas: CreateStudentInput) {
     if (
-      !studentDatas.phoneNum.startsWith('010') ||
-      !studentDatas.phoneNum.startsWith('011')
+      !(
+        studentDatas.phoneNum.startsWith('010') ||
+        studentDatas.phoneNum.startsWith('011')
+      )
     ) {
       throw new BadRequestException('올바른 전화번호 양식이 아닙니다.');
     }
