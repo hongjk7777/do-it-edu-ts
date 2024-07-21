@@ -6,7 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Student, User } from '@prisma/client';
+import { ChangePasswordInput } from '@auth/input/change-password.input';
 import { UpdateStudentInput } from '@student/dto/update-student.input';
+import { UserService } from '@user/service/user.service';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateStudentInput } from '../dto/create-student.input';
 
@@ -15,6 +17,7 @@ export class StudentService {
   constructor(
     private prisma: PrismaService,
     private authService: AuthService,
+    private userService: UserService,
   ) {}
 
   async save(studentDatas: CreateStudentInput): Promise<Student> {
@@ -85,8 +88,25 @@ export class StudentService {
       },
     });
 
+    const updateUser = await this.prisma.user.update({
+      where: {
+        username: studentDatas.phoneNum,
+      },
+      data: {
+        username: studentDatas.phoneNum,
+      },
+    });
+
+    const changePasswordInput = new ChangePasswordInput();
+    changePasswordInput.newPassword = studentDatas.phoneNum;
+    await this.userService.changePassword(changePasswordInput, updateUser.id);
+
     if (!updateStudent) {
       throw new NotFoundException('해당하는 학생이 존재하지 않습니다.');
+    }
+
+    if (!updateUser) {
+      throw new NotFoundException('해당하는 유저가 존재하지 않습니다.');
     }
 
     return updateStudent;
