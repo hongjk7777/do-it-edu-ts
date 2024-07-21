@@ -72,6 +72,12 @@ export class StudentService {
   }
 
   async update(studentDatas: UpdateStudentInput): Promise<Student> {
+    const oldStudent = await this.prisma.student.findUnique({
+      where: {
+        id: studentDatas.id,
+      },
+    });
+
     const updateStudent = await this.prisma.student.update({
       where: {
         id: studentDatas.id,
@@ -88,9 +94,11 @@ export class StudentService {
       },
     });
 
+    console.log(oldStudent.phoneNum);
+
     const updateUser = await this.prisma.user.update({
       where: {
-        username: studentDatas.phoneNum,
+        username: oldStudent.phoneNum,
       },
       data: {
         username: studentDatas.phoneNum,
