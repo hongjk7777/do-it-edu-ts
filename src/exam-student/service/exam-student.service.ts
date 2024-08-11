@@ -383,10 +383,11 @@ export class ExamStudentService {
 
     examStudentList.forEach((examStudent) => {
       const score = this.calcSum(examStudent.examStudentScore);
+      if (0 <= score && score <= 50) {
+        const index = Math.floor(score == 0 ? score / 5 : (score - 1) / 5);
 
-      const index = Math.floor(score == 0 ? score / 5 : (score - 1) / 5);
-
-      rankingList[index]++;
+        rankingList[index]++;
+      }
     });
 
     return rankingList;
