@@ -1,73 +1,76 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# 해냄학원 성적관리 웹사이트 V2 (2023.07. ~ )
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## 📖 프로젝트 개요
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+- 해냄학원 내 엑셀로 관리되고 있는 성적들을 학부모들에게 손쉽게 보여주고자 만든 웹사이트
+- 관리자들은 컴퓨터를 주로 이용하기에 컴퓨터화면에 초점을 맞췄고, 학부모들은 주로 핸드폰을 사용해서 웹사이트를 이용하기에 모바일 화면에 초점을 맞췄습니다.
+- 사용자 규모: 2명의 관리자와 300명 정도의 학부모들
+- 레거시 개편 이유: 다른 프로젝트를 하는 도중 Annotation을 활용한 수많은 기능, ORM 등 MVC 프레임워크의 강력한 기능들을 마주하였고, 기존 프로젝트의 레거시 개편의 필요성을 인지함.
+  <br><br>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🔨 사용 기술
 
-## Installation
+---
 
-```bash
-$ npm install
-```
+- 백엔드: NestJS, Prisma, GraphQL
+- 테스트: Jest
+- DB : MySQL, Redis
+- AWS: AWS RDS, AWS EC2
+- 배포: Docker, GitHub Actions, AWS ElasticBeanstalk
+  <br><br>
 
-## Running the app
+## 📃 구현기능 목록
 
-```bash
-# development
-$ npm run start
+---
 
-# watch mode
-$ npm run start:dev
+- 👨‍💻관리자
+  - 반 관리
+    - 학교별로 반 생성 및 삭제
+  - 성적 관리
+    - 엑셀로 시험성적 입력
+    - 엑셀로 지원학과 입력
+  - 성적 조회
+    - 모든 학생들의 성적 세부사항 확인 가능
+  - 시험별 세부 사항 출력
+    - 각각의 시험마다 응시자의 순위, 점수분포, 백분위 등 시험 세부사항이 적혀있는 엑셀파일을 출력
+- 🙍‍♂️사용자
+  - 로그인
+  - 시험 기록 조회
+    - 총점, 등수 확인 가능
+    - 실행 예시
+  - 세부 성적 조회
+    - 문제별 득점 세부사항, 평균, 표준편차, 백분위, 학과별 등수 등 시험 세부 사항 확인 가능
+    - 전체 점수 분포표, 지원학과별 점수 분포표 확인 가능
 
-# production mode
-$ npm run start:prod
-```
+<br>
+<br>
 
-## Test
+## ⚡대표 화면
 
-```bash
-# unit tests
-$ npm run test
+---
 
-# e2e tests
-$ npm run test:e2e
+### 사용자(학부모)
 
-# test coverage
-$ npm run test:cov
-```
+- 성적 기록 확인
 
-## Support
+  ![시험 목록 조회.png](./img/student_score_screen.png)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+- 성적 세부 사항 확인
+  ![성적 세부사항.png](./img/student_score_detail_screen.png)
+  <br>
+  <br>
 
-## Stay in touch
+### 관리자
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+- 관리하는 반 목록 화면
+  ![메인 화면.png](./img/main_screen.png)
 
-## License
+- 반에 속해 있는 학생 목록
 
-Nest is [MIT licensed](LICENSE).
+![관리 학생목록.png](./img/student_screen.png)
+
+- 시험 목록
+
+![시험목록.png](./img/exam_screen.png)
