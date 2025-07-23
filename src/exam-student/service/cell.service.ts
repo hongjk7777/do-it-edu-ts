@@ -6,18 +6,18 @@ import ExcelJS from 'exceljs';
 @Injectable()
 export default class CellService {
   isNameIndexCell(cell: ExcelJS.Cell) {
-    if (cell.value && typeof cell.value === 'string') {
-      return cell.value.includes('이름');
+    if (cell.text && typeof cell.text === 'string') {
+      return cell.text.includes('이름');
     }
 
     return false;
   }
 
   isPhoneNumIndexCell(cell: ExcelJS.Cell) {
-    if (cell.value && typeof cell.value === 'string') {
+    if (cell.text && typeof cell.text === 'string') {
       return (
-        !cell.value.includes('학생') &&
-        (cell.value.includes('학부모') || cell.value.includes('전번'))
+        !cell.text.includes('학생') &&
+        (cell.text.includes('학부모') || cell.text.includes('전번'))
       );
     }
 
@@ -25,8 +25,8 @@ export default class CellService {
   }
 
   isStudentNumIndexCell(cell: ExcelJS.Cell) {
-    if (cell.value && typeof cell.value === 'string') {
-      return cell.value.includes('순번');
+    if (cell.text && typeof cell.text === 'string') {
+      return cell.text.includes('순번');
     }
 
     return false;
@@ -34,11 +34,11 @@ export default class CellService {
 
   isStudentNumCell(cell: ExcelJS.Cell) {
     const cancelStudentIndex = '중단';
-    if (cell.value) {
-      if (typeof cell.value === 'number') {
+    if (cell.text) {
+      if (typeof cell.text === 'number') {
         return true;
-      } else if (typeof cell.value === 'string') {
-        const studentNum = cell.value.split(' ').join();
+      } else if (typeof cell.text === 'string') {
+        const studentNum = cell.text.split(' ').join();
         return !isNaN(Number(studentNum)) || studentNum == cancelStudentIndex;
       }
     }
@@ -47,11 +47,11 @@ export default class CellService {
   }
 
   isStudentNameCell(cell: ExcelJS.Cell) {
-    if (cell.value) {
-      let name = cell.value;
+    if (cell.text) {
+      let name = cell.text;
 
-      if (typeof cell.value === 'string') {
-        name = cell.value.split(' ').join();
+      if (typeof cell.text === 'string') {
+        name = cell.text.split(' ').join();
       }
 
       if (name == '' || name == '이름') {
@@ -65,7 +65,7 @@ export default class CellService {
   }
 
   getPhoneNum(cell: ExcelJS.Cell) {
-    let value = cell.value;
+    let value = cell.text;
 
     if (value) {
       if (typeof value === 'number') {
@@ -87,16 +87,16 @@ export default class CellService {
   }
 
   isRoundIndexCell(cell: ExcelJS.Cell) {
-    if (cell.value && typeof cell.value === 'string') {
-      return cell.value.includes('회') && cell.value.includes('(1)');
+    if (cell.text && typeof cell.text === 'string') {
+      return cell.text.includes('회') && cell.text.includes('(1)');
     }
 
     return false;
   }
 
   getRound(cell: ExcelJS.Cell, curRound: number) {
-    if (cell.value) {
-      const roundStr = cell.value.toString().split('회', 1)[0];
+    if (cell.text) {
+      const roundStr = cell.text.toString().split('회', 1)[0];
       const round = parseInt(this.parseOnlyNumber(roundStr));
       if (!isNaN(round) && round == curRound + 1) {
         return round;
@@ -107,10 +107,12 @@ export default class CellService {
   }
 
   getCommonRound(cell: ExcelJS.Cell, curCommonRound: number) {
-    if (cell.value) {
-      const commonRound = parseInt(this.parseOnlyNumber(cell.value.toString()));
+    if (cell.text) {
+      const commonRound = parseInt(this.parseOnlyNumber(cell.text.toString()));
 
       if (!isNaN(commonRound)) {
+        console.log('commonRound' + commonRound);
+
         if (commonRound == curCommonRound + 1) {
           return commonRound;
         }
@@ -152,13 +154,13 @@ export default class CellService {
   }
 
   getScore(scoreCell: ExcelJS.Cell) {
-    if (scoreCell.value) {
+    if (scoreCell.text) {
       let score = 0;
 
-      if (typeof scoreCell.value === 'number') {
-        score = scoreCell.value;
-      } else if (typeof scoreCell.value === 'string') {
-        score = parseInt(this.parseOnlyNumber(scoreCell.value.toString()));
+      if (typeof scoreCell.text === 'number') {
+        score = scoreCell.text;
+      } else if (typeof scoreCell.text === 'string') {
+        score = parseInt(this.parseOnlyNumber(scoreCell.text.toString()));
       }
 
       if (isNaN(score)) {
@@ -172,12 +174,12 @@ export default class CellService {
   }
 
   isDeptRoundCell(cell: ExcelJS.Cell, curCommonRound: number) {
-    if (cell.value) {
+    if (cell.text) {
       let round = 0;
-      if (typeof cell.value === 'number') {
-        return cell.value === curCommonRound + 1;
-      } else if (typeof cell.value === 'string') {
-        round = parseInt(this.parseOnlyNumber(cell.value.toString()));
+      if (typeof cell.text === 'number') {
+        return cell.text === curCommonRound + 1;
+      } else if (typeof cell.text === 'string') {
+        round = parseInt(this.parseOnlyNumber(cell.text.toString()));
 
         return !isNaN(round) && round === curCommonRound + 1;
       }
@@ -187,13 +189,13 @@ export default class CellService {
   }
 
   getDeptCommonRound(cell: ExcelJS.Cell, prevCommonRound: number) {
-    if (cell.value) {
+    if (cell.text) {
       let commonRound = 0;
 
-      if (typeof cell.value === 'string') {
-        commonRound = parseInt(this.parseOnlyNumber(cell.value.toString()));
-      } else if (typeof cell.value === 'number') {
-        commonRound = cell.value;
+      if (typeof cell.text === 'string') {
+        commonRound = parseInt(this.parseOnlyNumber(cell.text.toString()));
+      } else if (typeof cell.text === 'number') {
+        commonRound = cell.text;
       }
 
       if (commonRound != prevCommonRound + 1) {
@@ -207,7 +209,7 @@ export default class CellService {
   }
 
   getStudentDept(cell: ExcelJS.Cell) {
-    const value = cell.value;
+    const value = cell.text;
 
     if (value && typeof value === 'string') {
       if (value.includes('과') || value.includes('부')) {

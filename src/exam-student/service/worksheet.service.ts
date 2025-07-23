@@ -161,8 +161,8 @@ export class WorksheetService {
   getName(row: ExcelJS.Row, nameCol: number) {
     const nameCell = row.getCell(nameCol);
 
-    if (nameCell.value) {
-      return nameCell.value.toString();
+    if (nameCell.text) {
+      return nameCell.text;
     }
 
     throw new SyntaxError(ExcelErrorMsg.INCORRECT_STUDENT_NAME_INDEX);
